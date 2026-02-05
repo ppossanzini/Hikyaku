@@ -28,10 +28,15 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.2"/>
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.2"/>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+    <PackageReference Include="Hikyaku.Contracts" Version="9.1.0" />
+    <PackageReference Include="Hikyaku" Version="9.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Hikyaku\Hikyaku.Contracts\Hikyaku.Contracts.csproj" />
-    <ProjectReference Include="..\..\Hikyaku\Hikyaku\Hikyaku.csproj" />
+    <None Include="..\..\..\assets\Logo-128.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+      <Link>Logo-128.png</Link>
+    </None>
   </ItemGroup>
 
 </Project>

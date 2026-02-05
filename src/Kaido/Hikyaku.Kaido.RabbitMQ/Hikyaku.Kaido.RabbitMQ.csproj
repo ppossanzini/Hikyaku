@@ -29,4 +29,11 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.2"/>
     <PackageReference Include="AxonFlow.Flow" Version="9.5.0"/>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\assets\Logo-128.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+      <Link>Logo-128.png</Link>
+    </None>
+  </ItemGroup>
 </Project>

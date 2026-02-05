@@ -25,7 +25,7 @@
     <PackageReference Include="Google.Protobuf" Version="3.25.2"/>
     <PackageReference Include="Grpc.AspNetCore.Web" Version="2.76.0"/>
     <PackageReference Include="Newtonsoft.Json" Version="13.*"/>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9"/>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.2"/>
     <PackageReference Include="Grpc.AspNetCore" Version="2.60.0"/>
     <PackageReference Include="Grpc.Net.Client" Version="2.60.0"/>
@@ -38,6 +38,13 @@
     <Protobuf Include="Protos\RequestsManager.proto" GrpcServices="Both"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Hikyaku.Kaido\Hikyaku.Kaido.csproj" />
+    <ProjectReference Include="..\Hikyaku.Kaido\Hikyaku.Kaido.csproj"/>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\assets\Logo-128.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+      <Link>Logo-128.png</Link>
+    </None>
   </ItemGroup>
 </Project>

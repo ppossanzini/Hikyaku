@@ -30,5 +30,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Hikyaku.Kaido\Hikyaku.Kaido.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\assets\Logo-128.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+      <Link>Logo-128.png</Link>
+    </None>
+  </ItemGroup>
 
 </Project>
