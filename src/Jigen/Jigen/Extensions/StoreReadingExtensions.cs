@@ -10,7 +10,8 @@ namespace Jigen.Extensions;
 
 public static class StoreReadingExtensions
 {
-  internal static void ReadHeader(this Store store)
+  internal static void ReadHeader<T, TE>(this Store<T, TE> store)
+    where T : struct where TE : struct
   {
     {
       var stream = store.EmbeddingFileStream;
@@ -36,7 +37,8 @@ public static class StoreReadingExtensions
     }
   }
 
-  internal static void LoadIndex(this Store store)
+  internal static void LoadIndex<T,TE>(this Store<T,TE> store)
+    where T : struct where TE : struct
   {
     var stream = store.IndexFileStream;
     if (stream.Length == 0) return;
@@ -56,7 +58,8 @@ public static class StoreReadingExtensions
   }
 
 
-  public static string ReadContent(this Store store, long id)
+  public static string ReadContent<T,TE>(this Store<T,TE> store, long id)
+    where T : struct where TE : struct
   {
     var accessor = store.ContentData.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
     (long contentposition, long embeddingposition, long size) item;
@@ -70,7 +73,8 @@ public static class StoreReadingExtensions
     return Encoding.UTF8.GetString(buffer);
   }
 
-  private static VectorEmbeddings ReadNextVectorEmbedding(Store store, Stream stream, BinaryReader reader)
+  private static VectorEmbeddings ReadNextVectorEmbedding<T,TE>(Store<T,TE> store, Stream stream, BinaryReader reader)
+    where T : struct where TE : struct
   {
     var embeddings = new float[store.Options.VectorSize];
     var bytes = MemoryMarshal.AsBytes(embeddings.AsSpan());

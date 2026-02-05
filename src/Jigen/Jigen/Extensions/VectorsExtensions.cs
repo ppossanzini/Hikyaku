@@ -4,7 +4,15 @@ namespace Jigen.Extensions;
 
 public static class VectorsExtensions
 {
-  internal static Span<float> Normalize(this ReadOnlySpan<float> vector)
+  public static Span<float> Normalize(this float[] vector)
+  {
+    Span<float> destination = new float[vector.Length];
+    var distance = TensorPrimitives.Norm(vector);
+    TensorPrimitives.Divide(vector, distance, destination);
+    return destination;
+  }
+  
+  public static Span<float> Normalize(this ReadOnlySpan<float> vector)
   {
     Span<float> destination = new float[vector.Length];
     var distance = TensorPrimitives.Norm(vector);
@@ -12,13 +20,13 @@ public static class VectorsExtensions
     return destination;
   }
 
-  internal static void Normalize(this ReadOnlySpan<float> vector, Span<float> destination)
+  public static void Normalize(this ReadOnlySpan<float> vector, Span<float> destination)
   {
     var distance = TensorPrimitives.Norm(vector);
     TensorPrimitives.Divide(vector, distance, destination);
   }
 
-  internal static Span<sbyte> Quantize(this Span<float> vector)
+  public static Span<sbyte> Quantize(this Span<float> vector)
   {
     Span<sbyte> quantized = new sbyte[vector.Length];
     for (int i = 0; i < vector.Length; i++)
@@ -27,7 +35,7 @@ public static class VectorsExtensions
     return quantized;
   }
 
-  internal static Span<float> DeQuantize(this Span<sbyte> vector)
+  public static Span<float> DeQuantize(this Span<sbyte> vector)
   {
     Span<float> dequantized = new float[vector.Length];
     for (int i = 0; i < vector.Length; i++)

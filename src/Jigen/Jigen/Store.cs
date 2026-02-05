@@ -10,12 +10,12 @@ using Jigen.PerformancePrimitives;
 
 namespace Jigen;
 
-public class Store : IStore, IDisposable
+public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
+  where TEmbeddings : struct
+  where TEmbeddingVector : struct
 {
   private const int CircularWritingBufferSize = 1_000_000;
-  internal readonly CircularMemoryQueue<VectorEntry> IngestionQueue = new(CircularWritingBufferSize);
-  internal long Writingposition = 0;
-  internal long Readingposition = 0;
+  internal readonly CircularMemoryQueue<VectorEntry<TEmbeddings>> IngestionQueue = new(CircularWritingBufferSize);
 
   // MemoryMappedFiles only for reading
   internal MemoryMappedFile ContentData;
@@ -26,10 +26,10 @@ public class Store : IStore, IDisposable
   internal FileStream EmbeddingFileStream;
   internal FileStream IndexFileStream;
 
-  internal readonly StoreOptions Options;
+  internal readonly StoreOptions<TEmbeddings, TEmbeddingVector> Options;
   internal readonly StoreHeader VectorStoreHeader = new();
 
-  internal readonly Writer Writer;
+  internal readonly Writer<TEmbeddings,TEmbeddingVector> Writer;
 
   internal string ContentFullFileName
   {
@@ -48,7 +48,7 @@ public class Store : IStore, IDisposable
 
   internal Dictionary<long, (long contentposition, long embeddingsposition, long size)> PositionIndex { get; set; } = new();
 
-  public Store(StoreOptions options)
+  public Store(StoreOptions<TEmbeddings, TEmbeddingVector> options)
   {
     this.Options = options;
     EnsureFileCreated();
@@ -59,7 +59,7 @@ public class Store : IStore, IDisposable
     this.LoadIndex();
     this.ReadHeader();
 
-    Writer = new Writer(this);
+    Writer = new Writer<TEmbeddings,TEmbeddingVector>(this);
   }
 
   internal void EnableWriting()

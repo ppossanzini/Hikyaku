@@ -11,7 +11,8 @@ namespace Jigen.Extensions;
 
 public static class StoreWritingExtensions
 {
-  internal static async Task SaveHeader(this Store store)
+  internal static async Task SaveHeader<T,TE>(this Store<T,TE> store)
+  where T:struct where TE:struct
   {
     {
       var file = store.EmbeddingFileStream;
@@ -35,7 +36,8 @@ public static class StoreWritingExtensions
     }
   }
 
-  internal static async Task RewriteIndex(this Store store)
+  internal static async Task RewriteIndex<T,TE>(this Store<T,TE> store)
+    where T:struct where TE:struct
   {
     var stream = store.IndexFileStream;
     await using var sw = new BinaryWriter(stream, Encoding.UTF8, true);
@@ -54,7 +56,8 @@ public static class StoreWritingExtensions
     await stream.FlushAsync();
   }
 
-  private static void AppendIndex(this Store store, (long id, long contentposition, long embeddingposition, long contentsize) item)
+  private static void AppendIndex<T,TE>(this Store<T,TE> store, (long id, long contentposition, long embeddingposition, long contentsize) item)
+    where T:struct where TE:struct
   {
     store.PositionIndex.Add(item.id, (item.contentposition, item.embeddingposition, item.contentsize));
     var file = store.IndexFileStream;
@@ -75,7 +78,8 @@ public static class StoreWritingExtensions
     sw.Flush();
   }
 
-  public static async Task<VectorEntry> AppendContent(this Store store, VectorEntry entry)
+  public static async Task<VectorEntry<T>> AppendContent<T,TE>(this Store<T,TE> store, VectorEntry<T> entry)
+    where T:struct where TE:struct
   {
     entry.Id = Interlocked.Increment(ref store.VectorStoreHeader.TotalEntityCount);
     await store.IngestionQueue.Enqueue(entry);
@@ -83,12 +87,15 @@ public static class StoreWritingExtensions
     return entry;
   }
   
-  internal static (long id, long position, long embeddingPosition, long size) AppendContent(this Store store, long id, string content, ReadOnlySpan<float> embeddings)
+  internal static (long id, long position, long embeddingPosition, long size) 
+    AppendContent<T,TE>(this Store<T,TE> store, long id, string content, T[] embeddings)
+    where T:struct where TE:struct
   {
-    return store.AppendContent(id, content, embeddings.Normalize().Quantize());
+    return store.AppendContent(id, content, store.Options.QuantizationFunction(embeddings));
   }
   
-  private static (long id, long position, long embeddingPosition, long size) AppendContent(this Store store, long id, string content, ReadOnlySpan<sbyte> embeddings)
+  private static (long id, long position, long embeddingPosition, long size) AppendContent<T,TE>(this Store<T,TE> store, long id, string content, ReadOnlySpan<TE> embeddings)
+    where T:struct where TE:struct
   {
     var contentStream = store.ContentFileStream;
     using var contentSw = new BinaryWriter(contentStream, Encoding.UTF8, true);

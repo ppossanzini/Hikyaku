@@ -2,7 +2,8 @@ using Jigen.Extensions;
 
 namespace Jigen;
 
-public class Writer
+public class Writer<T, TE>
+  where T : struct where TE : struct
 {
   private bool _running = true;
 
@@ -10,9 +11,9 @@ public class Writer
   private readonly Thread _writingThread;
   private readonly AutoResetEvent _waiter = new(false);
 
-  private readonly Store _store;
+  private readonly Store<T, TE> _store;
 
-  public Writer(Store store)
+  public Writer(Store<T, TE> store)
   {
     this._store = store;
     _writingThread = new Thread(WriterJob);

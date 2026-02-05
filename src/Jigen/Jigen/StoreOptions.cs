@@ -1,6 +1,7 @@
 namespace Jigen;
 
-public class StoreOptions
+public class StoreOptions<T, TE>
+  where T : struct where TE : struct
 {
   public string DataBasePath { get; set; }
   public string DataBaseName { get; set; }
@@ -12,4 +13,6 @@ public class StoreOptions
   public int IncrementStepPercentage { get; set; } = 10;
   public int FreeSpaceLimitPercentage { get; set; } = 2;
   public int VectorSize { get; set; } = 1536;
+
+  public Func<T[], TE[]> QuantizationFunction { get; set; } = (i) => throw new InvalidOperationException("Quantization Function not provided");
 }
