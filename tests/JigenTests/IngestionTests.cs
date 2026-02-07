@@ -18,6 +18,8 @@ public class IngestionTests : IDisposable
       DataBasePath = "/data/jigendb",
       QuantizationFunction = i => i.Normalize().Quantize().ToArray()
     });
+
+    
   }
 
   [Theory]
@@ -203,6 +205,7 @@ public class IngestionTests : IDisposable
           .Select(i => (float)i).ToArray()
       });
     sw.Stop();
+    await _store.SaveChangesAsync();
     Console.WriteLine($" SimpleAppend: Elapsed Time for {count}: {sw.Elapsed.ToString("G")}");
   }
 
@@ -392,6 +395,8 @@ public class IngestionTests : IDisposable
       }));
 
     sw.Stop();
+
+    await _store.SaveChangesAsync();
     Console.WriteLine($" ParallelAppend: Elapsed Time for {count}: {sw.Elapsed.ToString("G")}");
   }
 

@@ -37,6 +37,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JigenTests", "tests\JigenTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jigen.SemanticKernel.Connector", "src\Jigen\Jigen.SemanticKernel.Connector\Jigen.SemanticKernel.Connector.csproj", "{DF241F53-35E6-4CA3-A098-6D78A23D37D5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jigen.SemanticTools", "src\Jigen\Jigen.SemanticTools\Jigen.SemanticTools.csproj", "{F7E86F49-0476-40DA-8EEA-9F9B115770A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WrtingDB", "tests\WrtingDB\WrtingDB.csproj", "{8F8DD705-9531-4F69-ADFA-EC62F18B732B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +95,14 @@ Global
 		{DF241F53-35E6-4CA3-A098-6D78A23D37D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF241F53-35E6-4CA3-A098-6D78A23D37D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF241F53-35E6-4CA3-A098-6D78A23D37D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7E86F49-0476-40DA-8EEA-9F9B115770A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7E86F49-0476-40DA-8EEA-9F9B115770A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7E86F49-0476-40DA-8EEA-9F9B115770A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7E86F49-0476-40DA-8EEA-9F9B115770A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F8DD705-9531-4F69-ADFA-EC62F18B732B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F8DD705-9531-4F69-ADFA-EC62F18B732B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F8DD705-9531-4F69-ADFA-EC62F18B732B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F8DD705-9531-4F69-ADFA-EC62F18B732B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -108,6 +120,7 @@ Global
 		{73013F3F-1E37-445A-B8E9-0726CE0768F3} = {F3FD3FC7-C250-4B97-B743-55C825A3A6F7}
 		{369AB6FA-87F0-4092-B01C-E79AB5C1EAE2} = {D12141CE-01A0-46E0-B87C-A6798A53B984}
 		{DF241F53-35E6-4CA3-A098-6D78A23D37D5} = {F3FD3FC7-C250-4B97-B743-55C825A3A6F7}
+		{F7E86F49-0476-40DA-8EEA-9F9B115770A3} = {F3FD3FC7-C250-4B97-B743-55C825A3A6F7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EA2AB956-E48F-42AE-B669-D12BB549726A}

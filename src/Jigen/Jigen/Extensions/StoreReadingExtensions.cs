@@ -3,6 +3,7 @@ using System.Data;
 using System.IO.MemoryMappedFiles;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using Jigen.DataStructures;
 
@@ -15,29 +16,20 @@ public static class StoreReadingExtensions
   {
     {
       var stream = store.EmbeddingFileStream;
-
-      var br = new BinaryReader(stream, Encoding.UTF8, true);
-
-      if (stream.Length < sizeof(long) + sizeof(int)) return;
-      stream.Position = 0;
-      store.VectorStoreHeader.TotalEntityCount = br.ReadInt64();
-      store.VectorStoreHeader.EmbeddingSize = br.ReadInt32();
-      store.VectorStoreHeader.EmbeddingCurrentPosition = br.ReadInt64();
-
-      stream.Position = store.VectorStoreHeader.EmbeddingCurrentPosition;
+      stream.Seek(0, SeekOrigin.End);
+      store.VectorStoreHeader.TotalEntityCount = store.PositionIndex.Count == 0 ? 0 : store.PositionIndex.Max(i => i.Key);
+      store.VectorStoreHeader.EmbeddingSize = store.Options.VectorSize;
+      store.VectorStoreHeader.EmbeddingCurrentPosition = stream.Position;
     }
 
     {
       var stream = store.ContentFileStream;
-      var br = new BinaryReader(stream, Encoding.UTF8, true);
-      if (stream.Length < sizeof(long) + sizeof(int)) return;
-      stream.Position = 0;
-      store.VectorStoreHeader.ContentCurrentPosition = br.ReadInt64();
-      stream.Position = store.VectorStoreHeader.ContentCurrentPosition;
+      stream.Seek(0, SeekOrigin.End);
+      store.VectorStoreHeader.ContentCurrentPosition = stream.Position;
     }
   }
 
-  internal static void LoadIndex<T,TE>(this Store<T,TE> store)
+  internal static void LoadIndex<T, TE>(this Store<T, TE> store)
     where T : struct where TE : struct
   {
     var stream = store.IndexFileStream;
@@ -58,7 +50,7 @@ public static class StoreReadingExtensions
   }
 
 
-  public static string ReadContent<T,TE>(this Store<T,TE> store, long id)
+  public static string ReadContent<T, TE>(this Store<T, TE> store, long id)
     where T : struct where TE : struct
   {
     var accessor = store.ContentData.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
@@ -70,10 +62,10 @@ public static class StoreReadingExtensions
 
     byte[] buffer = new byte[item.size];
     accessor.ReadArray(item.contentposition + sizeof(long), buffer, 0, (int)item.size);
-    return Encoding.UTF8.GetString(buffer);
+    return Encoding.UTF8.GetString(buffer).Trim();
   }
 
-  private static VectorEmbeddings ReadNextVectorEmbedding<T,TE>(Store<T,TE> store, Stream stream, BinaryReader reader)
+  private static VectorEmbeddings ReadNextVectorEmbedding<T, TE>(Store<T, TE> store, Stream stream, BinaryReader reader)
     where T : struct where TE : struct
   {
     var embeddings = new float[store.Options.VectorSize];

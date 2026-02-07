@@ -4,7 +4,7 @@ namespace Jigen;
 
 public interface IStore
 {
-  Task SaveAsync(CancellationToken cancellationToken);
+  Task SaveChangesAsync(CancellationToken? cancellationToken);
 
   Task Close();
 }

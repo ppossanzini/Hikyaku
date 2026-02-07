@@ -10,8 +10,11 @@ public class Writer<T, TE>
   // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
   private readonly Thread _writingThread;
   private readonly AutoResetEvent _waiter = new(false);
+  private readonly ManualResetEvent _writingcompleted = new(false);
 
   private readonly Store<T, TE> _store;
+
+  public Task WaitForWritingCompleted => Task.Run(() => _writingcompleted.WaitOne());
 
   public Writer(Store<T, TE> store)
   {
@@ -38,16 +41,21 @@ public class Writer<T, TE>
           spinwait.SpinOnce();
       }
 
-      _waiter.WaitOne(TimeSpan.FromSeconds(30));
+      _writingcompleted.Set();
+      _waiter.WaitOne(TimeSpan.FromSeconds(2));
       if (_store.IngestionQueue.IsEmpty) continue;
-
+      _writingcompleted.Reset();
+      
       while (_store.IngestionQueue.TryDequeue(out var entry))
       {
-        _store.VerifyFileSize();
-        _store.AppendContent(entry.Id, entry.Content, entry.Embedding);
+        // _store.VerifyFileSize();
+        Console.WriteLine($"Writing entry with ID: {entry.Id}");
+        var result = await _store.AppendContent(entry.Id, entry.Content, entry.Embedding);
+        Console.WriteLine($"Writing completed at position: {result.id} {result.position}");
+        
       }
 
-      await _store.SaveHeader();
+      // await _store.SaveHeader();
 
       await Task.WhenAll([
         Task.Run(async () => await _store.ContentFileStream.FlushAsync()),

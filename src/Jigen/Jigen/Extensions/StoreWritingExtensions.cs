@@ -11,33 +11,40 @@ namespace Jigen.Extensions;
 
 public static class StoreWritingExtensions
 {
-  internal static async Task SaveHeader<T,TE>(this Store<T,TE> store)
-  where T:struct where TE:struct
-  {
-    {
-      var file = store.EmbeddingFileStream;
-      await using var accessor = new BinaryWriter(file, Encoding.UTF8, true);
+  // internal static async Task SaveHeader<T, TE>(this Store<T, TE> store)
+  //   where T : struct where TE : struct
+  // {
+  //   {
+  //     var file = store.EmbeddingFileStream;
+  //     await using var accessor = new BinaryWriter(file, Encoding.UTF8, true);
+  //
+  //     file.Seek(0, SeekOrigin.Begin);
+  //
+  //     accessor.Write(store.VectorStoreHeader.TotalEntityCount);
+  //     accessor.Write(store.VectorStoreHeader.EmbeddingSize);
+  //     accessor.Write(store.VectorStoreHeader.EmbeddingCurrentPosition);
+  //     accessor.Flush();
+  //     await file.FlushAsync();
+  //     file.Seek(0, SeekOrigin.End);
+  //     
+  //     
+  //   }
+  //
+  //   {
+  //     var file = store.ContentFileStream;
+  //     await using var accessor = new BinaryWriter(file, Encoding.UTF8, true);
+  //
+  //     file.Seek(0, SeekOrigin.Begin);
+  //     accessor.Write(store.VectorStoreHeader.ContentCurrentPosition);
+  //     accessor.Flush();
+  //     await file.FlushAsync();
+  //     file.Seek(0, SeekOrigin.End);
+  //     
+  //   }
+  // }
 
-      file.Position = 0;
-      accessor.Write(store.VectorStoreHeader.TotalEntityCount);
-      accessor.Write(store.VectorStoreHeader.EmbeddingSize);
-      accessor.Write(store.VectorStoreHeader.EmbeddingCurrentPosition);
-      accessor.Flush();
-      await file.FlushAsync();
-    }
-
-    {
-      var file = store.ContentFileStream;
-      await using var accessor = new BinaryWriter(file, Encoding.UTF8, true);
-
-      file.Position = 0;
-      accessor.Write(store.VectorStoreHeader.ContentCurrentPosition);
-      await file.FlushAsync();
-    }
-  }
-
-  internal static async Task RewriteIndex<T,TE>(this Store<T,TE> store)
-    where T:struct where TE:struct
+  internal static async Task RewriteIndex<T, TE>(this Store<T, TE> store)
+    where T : struct where TE : struct
   {
     var stream = store.IndexFileStream;
     await using var sw = new BinaryWriter(stream, Encoding.UTF8, true);
@@ -56,79 +63,80 @@ public static class StoreWritingExtensions
     await stream.FlushAsync();
   }
 
-  private static void AppendIndex<T,TE>(this Store<T,TE> store, (long id, long contentposition, long embeddingposition, long contentsize) item)
-    where T:struct where TE:struct
+  private static async Task AppendIndex<T, TE>(this Store<T, TE> store, (long id, long contentposition, long embeddingposition, long contentsize) item)
+    where T : struct where TE : struct
   {
     store.PositionIndex.Add(item.id, (item.contentposition, item.embeddingposition, item.contentsize));
     var file = store.IndexFileStream;
-    using var sw = new BinaryWriter(file, Encoding.UTF8, true);
 
     if (file.Length == 0)
-      sw.Write((int)0);
+      await file.WriteAsync(BitConverter.GetBytes(0), 0, sizeof(int));
 
     file.Seek(0, SeekOrigin.End);
-    sw.Write(item.id);
-    sw.Write(item.contentposition);
-    sw.Write(item.embeddingposition);
-    sw.Write(item.contentsize);
+    await file.WriteAsync(BitConverter.GetBytes(item.id), 0, sizeof(long));
+    await file.WriteAsync(BitConverter.GetBytes(item.contentposition), 0, sizeof(long));
+    await file.WriteAsync(BitConverter.GetBytes(item.embeddingposition), 0, sizeof(long));
+    await file.WriteAsync(BitConverter.GetBytes(item.contentsize), 0, sizeof(long));
+    file.Seek(0, SeekOrigin.End);
+
 
     file.Seek(0, SeekOrigin.Begin);
-    sw.Write(store.PositionIndex.Count);
-
-    sw.Flush();
+    await file.WriteAsync(BitConverter.GetBytes(store.PositionIndex.Count), 0, sizeof(int));
+    await file.FlushAsync();
+    file.Seek(0, SeekOrigin.End);
   }
 
-  public static async Task<VectorEntry<T>> AppendContent<T,TE>(this Store<T,TE> store, VectorEntry<T> entry)
-    where T:struct where TE:struct
+  public static async Task<VectorEntry<T>> AppendContent<T, TE>(this Store<T, TE> store, VectorEntry<T> entry)
+    where T : struct where TE : struct
   {
     entry.Id = Interlocked.Increment(ref store.VectorStoreHeader.TotalEntityCount);
     await store.IngestionQueue.Enqueue(entry);
     store.Writer.SignalNewData();
     return entry;
   }
-  
-  internal static (long id, long position, long embeddingPosition, long size) 
-    AppendContent<T,TE>(this Store<T,TE> store, long id, string content, T[] embeddings)
-    where T:struct where TE:struct
+
+  internal static async Task<(long id, long position, long embeddingPosition, long size)>
+    AppendContent<T, TE>(this Store<T, TE> store, long id, string content, T[] embeddings)
+    where T : struct where TE : struct
   {
-    return store.AppendContent(id, content, store.Options.QuantizationFunction(embeddings));
+    return await store.AppendContent(id, content, store.Options.QuantizationFunction(embeddings));
   }
-  
-  private static (long id, long position, long embeddingPosition, long size) AppendContent<T,TE>(this Store<T,TE> store, long id, string content, ReadOnlySpan<TE> embeddings)
-    where T:struct where TE:struct
+
+  private static async Task<(long id, long position, long embeddingPosition, long size)>
+    AppendContent<T, TE>(this Store<T, TE> store, long id, string content, TE[] embeddings)
+    where T : struct where TE : struct
   {
     var contentStream = store.ContentFileStream;
-    using var contentSw = new BinaryWriter(contentStream, Encoding.UTF8, true);
 
-    var currentPosition = 0L;
-    var size = 0L;
 
-    currentPosition = contentStream.Position;
+    contentStream.Seek(0, SeekOrigin.End);
+    var currentPosition = contentStream.Position;
+    ;
 
-    contentSw.Write(id);
+
+    await contentStream.WriteAsync(BitConverter.GetBytes(id), 0, sizeof(long));
     var buffer = Encoding.UTF8.GetBytes(content);
-    contentStream.Write(buffer, 0, buffer.Length);
+    await contentStream.WriteAsync(buffer, 0, buffer.Length);
+    long size = buffer.Length;
 
-    contentSw.Flush();
-    size = contentStream.Position - currentPosition;
-
+    contentStream.Seek(0, SeekOrigin.End);
     store.VectorStoreHeader.ContentCurrentPosition = contentStream.Position;
     // Vector Normalization
 
 
     var embeddingsStream = store.EmbeddingFileStream;
-    using var embeddingSw = new BinaryWriter(embeddingsStream, Encoding.UTF8, true);
+    embeddingsStream.Seek(0, SeekOrigin.End);
     var embeddingPosition = embeddingsStream.Position;
 
     {
-      embeddingSw.Write(id);
-      embeddingSw.Write(currentPosition);
-      embeddingsStream.Write(MemoryMarshal.AsBytes(embeddings));
-      embeddingSw.Flush();
+      await embeddingsStream.WriteAsync(BitConverter.GetBytes(id), 0, sizeof(long));
+      await embeddingsStream.WriteAsync(BitConverter.GetBytes(currentPosition), 0, sizeof(long));
+      await embeddingsStream.WriteAsync(MemoryMarshal.AsBytes((Span<TE>)embeddings).ToArray());
     }
+    embeddingsStream.Seek(0, SeekOrigin.End);
     store.VectorStoreHeader.EmbeddingCurrentPosition = embeddingsStream.Position;
 
-    store.AppendIndex((id, currentPosition, embeddingPosition, size));
+    await store.AppendIndex((id, currentPosition, embeddingPosition, size));
 
 
     return (id, currentPosition, embeddingPosition, size);

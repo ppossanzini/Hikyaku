@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.IO.MemoryMappedFiles;
 using System.Numerics;
 using Jigen.DataStructures;
 
@@ -20,16 +21,16 @@ public static class SimdSearchExtensions
     var topResults = new ConcurrentBag<(long Id, float Score)>();
 
 
-    using (var accessor = store.EmbeddingsData.CreateViewAccessor())
+    using (var accessor = store.EmbeddingsData.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read))
     {
-      byte* pointer = null;
-      accessor.SafeMemoryMappedViewHandle.AcquirePointer(ref pointer);
-
       try
       {
-        var headerOffset = sizeof(long) + sizeof(int);
+        byte* pointer = null;
+        accessor.SafeMemoryMappedViewHandle.AcquirePointer(ref pointer);
+
+        var headerOffset = 2 * sizeof(long) + sizeof(int);
         var entrySize = sizeof(long) + sizeof(long) + (vectorSize * sizeof(TEmbeddingVector));
-        var totalBytes = (long)accessor.Capacity;
+        var totalBytes = (long)store.VectorStoreHeader.EmbeddingCurrentPosition;
         var entryCount = (totalBytes - headerOffset) / entrySize;
 
         Parallel.For(0L, entryCount, i =>
@@ -55,7 +56,10 @@ public static class SimdSearchExtensions
     }
 
     return topResults.OrderByDescending(r => r.Score).Take(top)
-      .Select(r => (new VectorEntry<TEmbeddings> { Id = r.Id, Content = store.ReadContent(r.Id) }, r.Score))
+      .Select(r => (new VectorEntry<TEmbeddings>
+      {
+        Id = r.Id, Content = store.ReadContent(r.Id)
+      }, r.Score))
       .ToList();
   }
 

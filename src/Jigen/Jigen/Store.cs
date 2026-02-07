@@ -8,6 +8,7 @@ using Jigen.PerformancePrimitives;
 
 // ReSharper disable MemberCanBePrivate.Global
 
+
 namespace Jigen;
 
 public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
@@ -26,10 +27,11 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
   internal FileStream EmbeddingFileStream;
   internal FileStream IndexFileStream;
 
+
   internal readonly StoreOptions<TEmbeddings, TEmbeddingVector> Options;
   internal readonly StoreHeader VectorStoreHeader = new();
 
-  internal readonly Writer<TEmbeddings,TEmbeddingVector> Writer;
+  internal readonly Writer<TEmbeddings, TEmbeddingVector> Writer;
 
   internal string ContentFullFileName
   {
@@ -51,6 +53,7 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
   public Store(StoreOptions<TEmbeddings, TEmbeddingVector> options)
   {
     this.Options = options;
+    this.VectorStoreHeader.EmbeddingSize = options.VectorSize;
     EnsureFileCreated();
 
     EnableWriting();
@@ -59,7 +62,7 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
     this.LoadIndex();
     this.ReadHeader();
 
-    Writer = new Writer<TEmbeddings,TEmbeddingVector>(this);
+    Writer = new Writer<TEmbeddings, TEmbeddingVector>(this);
   }
 
   internal void EnableWriting()
@@ -73,16 +76,16 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
   {
     if (this.ContentFileStream.Length > 0)
       ContentData = MemoryMappedFile.CreateFromFile(File.Open(ContentFullFileName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite),
-        null, 0, MemoryMappedFileAccess.Read, HandleInheritability.Inheritable, false);
+        null, 0, MemoryMappedFileAccess.Read, HandleInheritability.None, true);
 
     if (this.EmbeddingFileStream.Length > 0)
       EmbeddingsData = MemoryMappedFile.CreateFromFile(File.Open(EmbeddingsFullFileName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite),
-        null, 0, MemoryMappedFileAccess.Read, HandleInheritability.Inheritable, false);
+        null, 0, MemoryMappedFileAccess.Read, HandleInheritability.None, true);
   }
 
-  public Task SaveAsync(CancellationToken cancellationToken)
+  public Task SaveChangesAsync(CancellationToken? cancellationToken = null)
   {
-    return Task.CompletedTask;
+    return Writer.WaitForWritingCompleted;
   }
 
   public Task Close()
@@ -90,12 +93,15 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
     if (!ContentData.SafeMemoryMappedFileHandle.IsClosed) ContentData.SafeMemoryMappedFileHandle.Close();
     if (!EmbeddingsData.SafeMemoryMappedFileHandle.IsClosed) EmbeddingsData.SafeMemoryMappedFileHandle.Close();
 
-
     Writer.Stop();
 
     this.ContentFileStream.Flush(true);
     this.EmbeddingFileStream.Flush(true);
     this.IndexFileStream.Flush(true);
+
+    this.ContentFileStream.Close();
+    this.EmbeddingFileStream.Close();
+    this.IndexFileStream.Close();
 
     return Task.CompletedTask;
   }
@@ -107,19 +113,20 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
     if (!File.Exists(EmbeddingsFullFileName))
     {
       using var stream = File.Create(EmbeddingsFullFileName);
-      stream.SetLength(Options.InitialContentDBSize * 1024 * 1024);
-      using var writer = new StreamWriter(stream);
+      // stream.SetLength(Options.InitialContentDBSize * 1024 * 1024);
+      stream.Seek(0, SeekOrigin.Begin);
+      using var writer = new BinaryWriter(stream);
 
       writer.Write(VectorStoreHeader.TotalEntityCount);
       writer.Write(VectorStoreHeader.EmbeddingSize);
       writer.Write(VectorStoreHeader.EmbeddingCurrentPosition = 2 * sizeof(long) + sizeof(int));
-
-
       writer.Flush();
+
+      stream.Seek(VectorStoreHeader.EmbeddingCurrentPosition, SeekOrigin.Begin);
+      
+      stream.Flush(true);
       writer.Close();
     }
-
-    var assname = Assembly.GetExecutingAssembly().GetName();
 
     if (!File.Exists(IndexFullFileName))
     {
@@ -127,20 +134,23 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
       using var writer = new BinaryWriter(stream);
 
       writer.Write((int)0);
-
+      
       writer.Flush();
+      stream.Flush(true);
       writer.Close();
     }
 
     if (!File.Exists(ContentFullFileName))
     {
       using var stream = File.Create(ContentFullFileName);
-      stream.SetLength(Options.InitialContentDBSize * 1024 * 1024);
+      // stream.SetLength(Options.InitialContentDBSize * 1024 * 1024);
 
       using var writer = new BinaryWriter(stream);
       writer.Write(VectorStoreHeader.ContentCurrentPosition = sizeof(long));
 
       writer.Flush();
+      
+      stream.Flush(true);
       writer.Close();
     }
   }
@@ -148,19 +158,23 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
   internal void VerifyFileSize()
   {
     if (this.ContentFileStream.Position > this.ContentFileStream.Length * ((100 - Options.FreeSpaceLimitPercentage) / 100))
+    {
+      var p = ContentFileStream.Position;
       this.ContentFileStream.SetLength(this.ContentFileStream.Length * ((100 + Options.IncrementStepPercentage) / 100));
+      this.ContentFileStream.Seek(p, SeekOrigin.Begin);
+    }
 
     if (this.EmbeddingFileStream.Position > this.EmbeddingFileStream.Length * ((100 - Options.FreeSpaceLimitPercentage) / 100))
+    {
+      var p = EmbeddingFileStream.Position;
       this.EmbeddingFileStream.SetLength(this.EmbeddingFileStream.Length * ((100 + Options.IncrementStepPercentage) / 100));
+      this.EmbeddingFileStream.Seek(p, SeekOrigin.Begin);
+    }
   }
 
 
   public void Dispose()
   {
-    Close();
-
-    if (!ContentData.SafeMemoryMappedFileHandle.IsClosed) ContentData.SafeMemoryMappedFileHandle.Close();
-    if (!EmbeddingsData.SafeMemoryMappedFileHandle.IsClosed) EmbeddingsData.SafeMemoryMappedFileHandle.Close();
   }
 
   #endregion
