@@ -78,11 +78,11 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
     var oldembeddings = EmbeddingsData;
 
     if (this.ContentFileStream.Length > 0)
-      ContentData = MemoryMappedFile.CreateFromFile(ContentFileStream,
+      ContentData = MemoryMappedFile.CreateFromFile(File.Open(ContentFullFileName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite),
         null, 0, MemoryMappedFileAccess.Read, HandleInheritability.None, true);
 
     if (this.EmbeddingFileStream.Length > 0)
-      EmbeddingsData = MemoryMappedFile.CreateFromFile(EmbeddingFileStream,
+      EmbeddingsData = MemoryMappedFile.CreateFromFile(File.Open(EmbeddingsFullFileName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite),
         null, 0, MemoryMappedFileAccess.Read, HandleInheritability.None, true);
 
     oldcontent?.Dispose();
