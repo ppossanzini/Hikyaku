@@ -1,11 +1,17 @@
-![Logo.png](assets/Logo-128.png)
+![Logo.png](assets/Logo-128.png) ![Logo.png](assets/Kaido 128.png) ![Logo.png](assets/Jigen 128.png)
 
 [![NuGet](https://img.shields.io/nuget/dt/Hikyaku.svg)](https://www.nuget.org/packages/Hikyaku) 
 [![NuGet](https://img.shields.io/nuget/vpre/Hikyaku.svg)](https://www.nuget.org/packages/Hikyaku)
 
 
-Hikyaku is a open-source derivate work of [MediatR](https://github.com/jbogard/MediatR.Archive) version 12.5.0 
-with additions to transform message dispatching from in-process to Out-Of-Process messaging via RPC calls implemented with popular message dispatchers. 
+Hikyaku is collection of open-source tools initially create as derivate work of [MediatR](https://github.com/jbogard/MediatR.Archive) version 12.5.0 
+with additions to transform message dispatching from in-process to Out-Of-Process messaging via RPC calls implemented with popular message dispatchers.
+
+The project is divided in tools
+  1) Hikyaku is the base initial derivate work of MediatR with some little fixes and improvements to avoid type mismatch during pipelines. 
+  2) Kaido implement RPC calls with popular message dispatchers like RabbitMQ and Kafka
+  3) Jigen is a Vector Database useful in application where you need a local Vector index but you does not need enterprise level infrastructure. 
+     You can consider Jigen as a counterpart of SQLite but for vector indexes. 
 
 
 
