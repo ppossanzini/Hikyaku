@@ -9,7 +9,7 @@ using Parquet.Serialization;
 
 namespace JigenTests;
 
-public class ParqueIngestionTests: IDisposable
+public class ParqueIngestionTests : IDisposable
 {
   private Store<float, sbyte> _store = null;
 
@@ -56,5 +56,7 @@ public class ParqueIngestionTests: IDisposable
         });
       }
     }
+
+    await _store.SaveChangesAsync();
   }
 }

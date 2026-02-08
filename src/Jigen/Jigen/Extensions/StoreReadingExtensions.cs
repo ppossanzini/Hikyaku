@@ -29,23 +29,25 @@ public static class StoreReadingExtensions
     }
   }
 
+
   internal static void LoadIndex<T, TE>(this Store<T, TE> store)
     where T : struct where TE : struct
   {
     var stream = store.IndexFileStream;
     if (stream.Length == 0) return;
 
-    using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+    const int EntrySize = sizeof(long) * 4;
 
-    var count = reader.ReadInt32();
-    for (var i = 0; i < count; i++)
+    stream.Seek(0, SeekOrigin.Begin);
+    using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+    while (stream.Position + EntrySize <= stream.Length)
     {
       var id = reader.ReadInt64();
       var contentPosition = reader.ReadInt64();
       var embeddingsPosition = reader.ReadInt64();
       var size = reader.ReadInt64();
 
-      store.PositionIndex.Add(id, (contentPosition, embeddingsPosition, size));
+      store.PositionIndex[id] = (contentPosition, embeddingsPosition, size);
     }
   }
 

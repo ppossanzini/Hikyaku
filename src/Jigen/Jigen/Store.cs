@@ -74,18 +74,32 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
 
   internal void EnableReading()
   {
+    var oldcontent = ContentData;
+    var oldembeddings = EmbeddingsData;
+
     if (this.ContentFileStream.Length > 0)
-      ContentData = MemoryMappedFile.CreateFromFile(File.Open(ContentFullFileName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite),
+      ContentData = MemoryMappedFile.CreateFromFile(ContentFileStream,
         null, 0, MemoryMappedFileAccess.Read, HandleInheritability.None, true);
 
     if (this.EmbeddingFileStream.Length > 0)
-      EmbeddingsData = MemoryMappedFile.CreateFromFile(File.Open(EmbeddingsFullFileName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite),
+      EmbeddingsData = MemoryMappedFile.CreateFromFile(EmbeddingFileStream,
         null, 0, MemoryMappedFileAccess.Read, HandleInheritability.None, true);
+
+    oldcontent?.Dispose();
+    oldembeddings?.Dispose();
   }
 
   public Task SaveChangesAsync(CancellationToken? cancellationToken = null)
   {
     return Writer.WaitForWritingCompleted;
+  }
+
+  public void RefreshReading()
+  {
+    this.EmbeddingFileStream.FlushAsync().GetAwaiter().GetResult();
+    this.ContentFileStream.FlushAsync().GetAwaiter().GetResult();
+    
+    this.EnableReading();
   }
 
   public Task Close()
@@ -123,7 +137,7 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
       writer.Flush();
 
       stream.Seek(VectorStoreHeader.EmbeddingCurrentPosition, SeekOrigin.Begin);
-      
+
       stream.Flush(true);
       writer.Close();
     }
@@ -131,13 +145,8 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
     if (!File.Exists(IndexFullFileName))
     {
       using var stream = File.Create(IndexFullFileName);
-      using var writer = new BinaryWriter(stream);
-
-      writer.Write((int)0);
-      
-      writer.Flush();
       stream.Flush(true);
-      writer.Close();
+      stream.Close();
     }
 
     if (!File.Exists(ContentFullFileName))
@@ -149,26 +158,9 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
       writer.Write(VectorStoreHeader.ContentCurrentPosition = sizeof(long));
 
       writer.Flush();
-      
+
       stream.Flush(true);
       writer.Close();
-    }
-  }
-
-  internal void VerifyFileSize()
-  {
-    if (this.ContentFileStream.Position > this.ContentFileStream.Length * ((100 - Options.FreeSpaceLimitPercentage) / 100))
-    {
-      var p = ContentFileStream.Position;
-      this.ContentFileStream.SetLength(this.ContentFileStream.Length * ((100 + Options.IncrementStepPercentage) / 100));
-      this.ContentFileStream.Seek(p, SeekOrigin.Begin);
-    }
-
-    if (this.EmbeddingFileStream.Position > this.EmbeddingFileStream.Length * ((100 - Options.FreeSpaceLimitPercentage) / 100))
-    {
-      var p = EmbeddingFileStream.Position;
-      this.EmbeddingFileStream.SetLength(this.EmbeddingFileStream.Length * ((100 + Options.IncrementStepPercentage) / 100));
-      this.EmbeddingFileStream.Seek(p, SeekOrigin.Begin);
     }
   }
 

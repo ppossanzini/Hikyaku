@@ -2,24 +2,25 @@
 using Jigen;
 using Jigen.DataStructures;
 using Jigen.Extensions;
+using Xunit.Abstractions;
 
 
 namespace JigenTests;
 
-public class IngestionTests : IDisposable
+public class IngestionTests
 {
+  private readonly ITestOutputHelper _testOutputHelper;
   private Store<float, sbyte> _store = null;
 
-  public IngestionTests()
+  public IngestionTests(ITestOutputHelper testOutputHelper)
   {
+    _testOutputHelper = testOutputHelper;
     _store = new Store<float, sbyte>(new StoreOptions<float, sbyte>()
     {
       DataBaseName = "tests",
       DataBasePath = "/data/jigendb",
       QuantizationFunction = i => i.Normalize().Quantize().ToArray()
     });
-
-    
   }
 
   [Theory]
@@ -29,7 +30,7 @@ public class IngestionTests : IDisposable
   [InlineData(1_000_000)]
   public async Task SimpleAppend(int count)
   {
-    Console.WriteLine("\n SimpleAppend");
+    _testOutputHelper.WriteLine("\n SimpleAppend");
     Stopwatch sw = new Stopwatch();
     sw.Start();
 
@@ -206,7 +207,7 @@ public class IngestionTests : IDisposable
       });
     sw.Stop();
     await _store.SaveChangesAsync();
-    Console.WriteLine($" SimpleAppend: Elapsed Time for {count}: {sw.Elapsed.ToString("G")}");
+    _testOutputHelper.WriteLine($" SimpleAppend: Elapsed Time for {count}: {sw.Elapsed.ToString("G")}");
   }
 
 
@@ -218,7 +219,7 @@ public class IngestionTests : IDisposable
   [InlineData(1_000_000)]
   public async Task ParallelAppend(int count)
   {
-    Console.WriteLine("\n ParallelAppend");
+    _testOutputHelper.WriteLine("\n ParallelAppend");
     Stopwatch sw = new Stopwatch();
     sw.Start();
 
@@ -397,11 +398,6 @@ public class IngestionTests : IDisposable
     sw.Stop();
 
     await _store.SaveChangesAsync();
-    Console.WriteLine($" ParallelAppend: Elapsed Time for {count}: {sw.Elapsed.ToString("G")}");
-  }
-
-  public void Dispose()
-  {
-    _store.Dispose();
+    _testOutputHelper.WriteLine($" ParallelAppend: Elapsed Time for {count}: {sw.Elapsed.ToString("G")}");
   }
 }

@@ -5,71 +5,105 @@ namespace Jigen;
 public class Writer<T, TE>
   where T : struct where TE : struct
 {
-  private bool _running = true;
+  private volatile bool _running = true;
 
-  // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
   private readonly Thread _writingThread;
+  private readonly Thread _flusher;
+
   private readonly AutoResetEvent _waiter = new(false);
-  private readonly ManualResetEvent _writingcompleted = new(false);
+  private readonly ManualResetEvent _writingCompleted = new(true); // queue drained at start
+
+  // Wake flusher on Stop() so it doesn't wait 30s
+  private readonly AutoResetEvent _flushWake = new(false);
+
+  // Single lock guarding ALL stream I/O (writes + flush)
+  private readonly object _ioLock = new();
 
   private readonly Store<T, TE> _store;
 
-  public Task WaitForWritingCompleted => Task.Run(() => _writingcompleted.WaitOne());
+  // Policy (3): "completed" == queue drained (not flushed)
+  public Task WaitForWritingCompleted => Task.Run(() => _writingCompleted.WaitOne());
 
   public Writer(Store<T, TE> store)
   {
-    this._store = store;
-    _writingThread = new Thread(WriterJob);
-    _writingThread.IsBackground = false;
+    _store = store;
+    _writingThread = new Thread(WriterJob) { IsBackground = true };
     _writingThread.Start();
+
+    _flusher = new Thread(FlushJob) { IsBackground = true };
+    _flusher.Start();
   }
 
   internal void SignalNewData()
   {
+    _writingCompleted.Reset(); // there is (or will be) work to do
     _waiter.Set();
   }
 
-  async void WriterJob()
+
+  private void FlushJob()
   {
-    var spinwait = new SpinWait();
     while (_running)
     {
+      // Wait 30s or until Stop() wakes us
+      _flushWake.WaitOne(TimeSpan.FromSeconds(30));
+      if (!_running) break;
+
+      // Flush only when writer is idle (queue drained)
+      if (!_writingCompleted.WaitOne(0)) continue;
+
+      lock (_ioLock)
+      {
+        // FlushAsync + GetResult is OK here since we're on a dedicated thread
+        _store.EmbeddingFileStream.FlushAsync().GetAwaiter().GetResult();
+        _store.ContentFileStream.FlushAsync().GetAwaiter().GetResult();
+        _store.IndexFileStream.FlushAsync().GetAwaiter().GetResult();
+      }
+    }
+  }
+
+  private void WriterJob()
+  {
+    while (_running)
+    {
+      _waiter.WaitOne(TimeSpan.FromMilliseconds(200));
+      if (!_running) break;
+
       if (_store.IngestionQueue.IsEmpty)
       {
-        spinwait.Reset();
-        while (spinwait.Count < 100)
-          spinwait.SpinOnce();
+        _writingCompleted.Set();
+        continue;
       }
 
-      _writingcompleted.Set();
-      _waiter.WaitOne(TimeSpan.FromSeconds(2));
-      if (_store.IngestionQueue.IsEmpty) continue;
-      _writingcompleted.Reset();
-      
-      while (_store.IngestionQueue.TryDequeue(out var entry))
+      try
       {
-        // _store.VerifyFileSize();
-        Console.WriteLine($"Writing entry with ID: {entry.Id}");
-        var result = await _store.AppendContent(entry.Id, entry.Content, entry.Embedding);
-        Console.WriteLine($"Writing completed at position: {result.id} {result.position}");
-        
+        lock (_ioLock)
+        {
+          while (_store.IngestionQueue.TryDequeue(out var entry))
+          {
+            _store.AppendContent(entry.Id, entry.Content, entry.Embedding).GetAwaiter().GetResult();
+          }
+        }
       }
-
-      // await _store.SaveHeader();
-
-      await Task.WhenAll([
-        Task.Run(async () => await _store.ContentFileStream.FlushAsync()),
-        Task.Run(async () => await _store.EmbeddingFileStream.FlushAsync()),
-        Task.Run(async () => await _store.IndexFileStream.FlushAsync())
-      ]);
-
-      _store.EnableReading();
+      finally
+      {
+        if (_store.IngestionQueue.IsEmpty)
+          _writingCompleted.Set();
+      }
     }
+
+    _writingCompleted.Set();
   }
 
   public void Stop()
   {
     _running = false;
+
+    // Wake both threads promptly
+    _waiter.Set();
+    _flushWake.Set();
+
     _writingThread.Join();
+    _flusher.Join();
   }
 }
