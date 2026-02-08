@@ -4,12 +4,12 @@ import "google/protobuf/empty.proto";
 package Hikyaku.Kaido.GRPC;
 
 service GrpcServices{
-  rpc ManageAxonFlowMessage(RequestMessage) returns (MessageResponse);
-  rpc ManageAxonFlowNotification(NotifyMessage) returns (google.protobuf.Empty);
+  rpc ManageHikyakuMessage(RequestMessage) returns (MessageResponse);
+  rpc ManageHikyakuNotification(NotifyMessage) returns (google.protobuf.Empty);
 }
 
 message RequestMessage {
-  string AxonFlowType = 1;
+  string HikyakuType = 1;
   string Body = 2;
 }
 
@@ -18,6 +18,6 @@ message MessageResponse {
 }
 
 message NotifyMessage{
-  string AxonFlowType = 1;
+  string HikyakuType = 1;
   string Body = 2;
 }

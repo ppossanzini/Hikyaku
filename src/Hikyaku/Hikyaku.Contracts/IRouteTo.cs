@@ -8,7 +8,7 @@ public interface IRouteTo
   /// <summary>
   /// a function to customize queue name
   /// </summary>
-  /// <param name="baseroute">Basic queue name from axonflow</param>
+  /// <param name="baseroute">Basic queue name from hikyaku</param>
   /// <returns>Customized queue name</returns>
   string RouteTo(string baseroute);
 }

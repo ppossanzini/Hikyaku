@@ -86,10 +86,10 @@ namespace Hikyaku.Kaido.GRPC
       var message = JsonConvert.SerializeObject(request, options.SerializerSettings);
 
       var grpcClient = GetClientFor<TRequest>();
-      var result = await grpcClient.ManageAxonFlowMessageAsync(new RequestMessage
+      var result = await grpcClient.ManageHikyakuMessageAsync(new RequestMessage
       {
         Body = message,
-        AxonFlowType = queueName ?? internalQueue
+        HikyakuType = queueName ?? internalQueue
       });
       return JsonConvert.DeserializeObject<ResponseMessage<TResponse>>(result.Body, options.SerializerSettings);
     }
@@ -113,10 +113,10 @@ namespace Hikyaku.Kaido.GRPC
       foreach (var channel in DestinationChannels)
       {
         var grpcClient = GetClientFor<TRequest>();
-        grpcClient.ManageAxonFlowNotificationAsync(new NotifyMessage()
+        grpcClient.ManageHikyakuNotificationAsync(new NotifyMessage()
         {
           Body = message,
-          AxonFlowType = queueName ?? internalQueue
+          HikyakuType = queueName ?? internalQueue
         });
       }
 

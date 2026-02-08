@@ -9,9 +9,7 @@ using System.Text;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using Axon;
-using Axon.Flow;
-using Axon.Flow.Messages;
+using Hikyaku.Kaido.Messages;
 using Microsoft.Extensions.DependencyInjection;
 
 
@@ -202,7 +200,7 @@ namespace Hikyaku.Kaido.RabbitMQ
     /// <param name="queueName">The dispatcher queue name</param>
     /// <param name="cancellationToken">A cancellation token to cancel the notification operation.</param>
     /// <returns>A task representing the asynchronous notification operation.</returns>
-    public async Task Notify<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : MediatR.INotification
+    public async Task Notify<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : INotification
     {
       var internalQueue = request.GetType().AxonTypeName(_routerOptions);
       string queueName = (request as IRouteTo)?.RouteTo(internalQueue);

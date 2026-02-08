@@ -17,13 +17,13 @@ Implementing CQRS in an in-process application does not bring to you all the pow
 
 Microservices and patterns like CQRS are very powerfull combination. In this scenario you will need to rewrite communication part to use some kind of out of process message dispatcher.
 
-AxonFlow provides you message dispatching behaviour and let you decide which call needs to be in-process and which needs to be Out-of-process and dispatched remotely, via a configuration without changing a single row of your code.
+Hikyaku provides you message dispatching behaviour and let you decide which call needs to be in-process and which needs to be Out-of-process and dispatched remotely, via a configuration without changing a single row of your code.
 
  
 
 ## Installation
 
-You should install [Hikyaku with NuGet](https://www.nuget.org/packages/AxonFlow)
+You should install [Hikyaku with NuGet](https://www.nuget.org/packages/Hikyaku)
 
     Install-Package Hikyaku
 
@@ -36,7 +36,7 @@ Or via the .NET Core command line interface:
     dotnet add package Hikyaku
     dotnet add package Hikyaku.Kaido
 
-Either commands, from Package Manager Console or .NET Core CLI, will download and install AxonFlow and all required dependencies.
+Either commands, from Package Manager Console or .NET Core CLI, will download and install Hikyaku and all required dependencies.
 
 
 ## Using Contracts-Only Package
@@ -56,24 +56,24 @@ Blazor
 ## Basic Configuration using `IServiceCollection`
 
 Configuring Hikyaku is an easy task. 
-1) Add Hikyaku to services configuration via AddHikyaku extension method. this will register the Axon service that can be used for message dispatching. 
+1) Add Hikyaku to services configuration via AddHikyaku extension method. this will register the Hikyaku service that can be used for message dispatching. 
 
-Hikyaku supports `Microsoft.Extensions.DependencyInjection.Abstractions` directly. To register various Axon services and handlers:
+Hikyaku supports `Microsoft.Extensions.DependencyInjection.Abstractions` directly. To register various Hikyaku services and handlers:
 
 ```
-services.AddAxon(cfg => cfg.RegisterServicesFromAssemblyContaining<Startup>());
+services.AddHikyaku(cfg => cfg.RegisterServicesFromAssemblyContaining<Startup>());
 ```
 
 or with an assembly:
 
 ```
-services.AddAxon(cfg => cfg.RegisterServicesFromAssembly(typeof(Startup).Assembly));
+services.AddHikyaku(cfg => cfg.RegisterServicesFromAssembly(typeof(Startup).Assembly));
 ```
 
 
 This registers:
 
-- `IAxon` as transient
+- `IHikyaku` as transient
 - `ISender` as transient
 - `IPublisher` as transient
 - `IRequestHandler<,>` concrete implementations as transient
@@ -92,7 +92,7 @@ This also registers open generic implementations for:
 To register behaviors, stream behaviors, pre/post processors:
 
 ```csharp
-services.AddAxon(cfg => {
+services.AddHikyaku(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(Startup).Assembly);
     cfg.AddBehavior<PingPongBehavior>();
     cfg.AddStreamBehavior<PingPongStreamBehavior>();
@@ -107,15 +107,15 @@ If no configuration is given for the message dispatched, all messages are dispat
 You can change the default behaviour in using the following configuration
 
 2) Decide what is the default behaviour, available options are 
-   1) ***ImplicitLocal*** : all `axon.Send()` calls will be delivered in-process unless further configuration. 
-   2) ***ImplicitRemote*** : all `axon.Send()` calls will be delivered out-of-process unless further configuration. 
+   1) ***ImplicitLocal*** : all `hikyaku.Send()` calls will be delivered in-process unless further configuration. 
+   2) ***ImplicitRemote*** : all `hikyaku.Send()` calls will be delivered out-of-process unless further configuration. 
    3) ***Explicit*** : you have the responsability do declare how to manage every single call. 
 
 
 ```
-    services.AddAxonFlow(opt =>
+    services.AddKaido(opt =>
     {
-      opt.Behaviour = AxonFlowBehaviourEnum.Explicit;
+      opt.Behaviour = HikyakuBehaviourEnum.Explicit;
     });
 ```
 
@@ -123,9 +123,9 @@ You can change the default behaviour in using the following configuration
 3) Configure calls delivery type according with you behaviour:
 
 ```
-    services.AddAxonFlow(opt =>
+    services.AddKaido(opt =>
     {
-      opt.Behaviour = AxonFlowBehaviourEnum.Explicit;
+      opt.Behaviour = HikyakuBehaviourEnum.Explicit;
       opt.SetAsRemoteRequest<Request1>();
       opt.SetAsRemoteRequest<Request2>();
       ....
@@ -137,9 +137,9 @@ Of course you will have some processes with requests declared **Local** and othe
 ### Example of process with all local calls and some remote calls
 
 ```
-    services.AddAxonFlow(opt =>
+    services.AddKaido(opt =>
     {
-      opt.Behaviour = AxonFlowBehaviourEnum.ImplicitLocal;
+      opt.Behaviour = HikyakuBehaviourEnum.ImplicitLocal;
       opt.SetAsRemoteRequest<Request1>();
       opt.SetAsRemoteRequest<Request2>();
       opt.SetAsRemoteRequests(typeof(Request2).Assembly); // All requests in an assembly
@@ -150,9 +150,9 @@ Of course you will have some processes with requests declared **Local** and othe
 ### Example of process with local handlers. 
 
 ```
-    services.AddAxonFlow(opt =>
+    services.AddKaido(opt =>
     {
-      opt.Behaviour = AxonFlowBehaviourEnum.ImplicitLocal;
+      opt.Behaviour = HikyakuBehaviourEnum.ImplicitLocal;
     });
 
 ```
@@ -160,26 +160,26 @@ Of course you will have some processes with requests declared **Local** and othe
 ### Example of process with remore handlers. 
 
 ```
-    services.AddAxonFlow(opt =>
+    services.AddKaido(opt =>
     {
-      opt.Behaviour = AxonFlowBehaviourEnum.ImplicitRemote;
+      opt.Behaviour = HikyakuBehaviourEnum.ImplicitRemote;
     });
 ```
 
 
-# AxonFlow with RabbitMQ
+# Hikyaku with RabbitMQ
 
 
-## Installing AxonFlow RabbitMQ extension.
+## Installing Hikyaku RabbitMQ extension.
 
 ```
-    Install-Package AxonFlow.Flow.RabbitMQ
+    Install-Package Hikyaku.Kaido.RabbitMQ
 ```
     
 Or via the .NET Core command line interface:
 
 ```
-    dotnet add package AxonFlow.Flow.RabbitMQ
+    dotnet add package Hikyaku.Kaido.RabbitMQ
 ```
 
 ## Configuring RabbitMQ Extension. 
@@ -187,7 +187,7 @@ Or via the .NET Core command line interface:
 Once installed you need to configure rabbitMQ extension. 
 
 ```
-    services.AddAxonFlowRabbitMQMessageDispatcher(opt =>
+    services.AddHikyakuRabbitMQMessageDispatcher(opt =>
     {
       opt.HostName = "rabbit instance";
       opt.Port = 5672;
@@ -195,29 +195,29 @@ Once installed you need to configure rabbitMQ extension.
       opt.UserName = "rabbituser";
       opt.VirtualHost = "/";
     });
-    services.ResolveAxonFlowCalls();
+    services.ResolveHikyakuCalls();
 ```
 
 or if you prefer use appsettings configuration 
 
 ```
-    services.AddAxonFlowRabbitMQMessageDispatcher(opt => context.Configuration.GetSection("rabbitmq").Bind(opt));
-    services.ResolveAxonFlowCalls();
+    services.AddHikyakuRabbitMQMessageDispatcher(opt => context.Configuration.GetSection("rabbitmq").Bind(opt));
+    services.ResolveHikyakuCalls();
 ```
 
 
-# AxonFlow with Kafka
+# Hikyaku with Kafka
 
-## Installing AxonFlow Kafka extension.
+## Installing Hikyaku Kafka extension.
 
 ```
-    Install-Package AxonFlow.Flow.Kafka
+    Install-Package Hikyaku.Kaido.Kafka
 ```
     
 Or via the .NET Core command line interface:
 
 ```
-    dotnet add package AxonFlow.Flow.Kafka
+    dotnet add package Hikyaku.Kaido.Kafka
 ```
 
 
@@ -226,22 +226,22 @@ Or via the .NET Core command line interface:
 Once installed you need to configure Kafka extension. 
 
 ```
-    services.AddAxonFlowKafkaMessageDispatcher(opt =>
+    services.AddHikyakuKafkaMessageDispatcher(opt =>
     {
       opt.BootstrapServers = "localhost:9092";
     });
-    services.ResolveAxonFlowCalls();
+    services.ResolveHikyakuCalls();
 ```
 
 or if you prefer use appsettings configuration 
 
 ```
-    services.AddAxonFlowKafkaMessageDispatcher(opt => context.Configuration.GetSection("kafka").Bind(opt));
-    services.ResolveAxonFlowCalls();
+    services.AddHikyakuKafkaMessageDispatcher(opt => context.Configuration.GetSection("kafka").Bind(opt));
+    services.ResolveHikyakuCalls();
 ```
 
 
 
-# AxonFlow with Azure Message Queues
+# Hikyaku with Azure Message Queues
 
 Coming soon. 

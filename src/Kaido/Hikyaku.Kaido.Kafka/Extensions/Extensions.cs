@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Axon;
-using Axon.Flow;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
+using Hikyaku.Kaido;
 using Microsoft.Extensions.Logging;
 using Hikyaku.Kaido.Kafka;
 
@@ -19,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <param name="services">The service collection.</param>
     /// <param name="config">The configuration action to configure the MessageDispatcherOptions.</param>
     /// <returns>The service collection with the Hikyaku.Router Kafka Message Dispatcher added.</returns>
-    public static IServiceCollection AddAxonFlowKafkaMessageDispatcher(this IServiceCollection services, Action<MessageDispatcherOptions> config)
+    public static IServiceCollection AddHikyakuKafkaMessageDispatcher(this IServiceCollection services, Action<MessageDispatcherOptions> config)
     {
       services.Configure<MessageDispatcherOptions>(config);
       services.AddSingleton<IExternalMessageDispatcher, MessageDispatcher>();
@@ -27,11 +26,11 @@ namespace Microsoft.Extensions.DependencyInjection
     }
 
     /// <summary>
-    /// Resolves axonflow calls by adding the RequestsManager as a hosted service to the service collection.
+    /// Resolves hikyaku calls by adding the RequestsManager as a hosted service to the service collection.
     /// </summary>
-    /// <param name="services">The service collection to resolve axonflow calls for.</param>
+    /// <param name="services">The service collection to resolve hikyaku calls for.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection ResolveAxonFlowCalls(this IServiceCollection services)
+    public static IServiceCollection ResolveHikyakuCalls(this IServiceCollection services)
     {
       services.AddHostedService<RequestsManager>();
       return services;

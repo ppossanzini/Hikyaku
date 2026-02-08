@@ -78,9 +78,9 @@ namespace Hikyaku.Kaido
     {
       switch (_options.Behaviour)
       {
-        case AxonFlowBehaviourEnum.ImplicitLocal:
+        case HikyakuBehaviourEnum.ImplicitLocal:
           return this.HasRemoteHandler(t) ? HandlerLocation.Remote : HandlerLocation.Local;
-        case AxonFlowBehaviourEnum.ImplicitRemote:
+        case HikyakuBehaviourEnum.ImplicitRemote:
           return this.HasLocalHandler(t) ? HandlerLocation.Local : HandlerLocation.Remote;
         default:
           return this.HasLocalHandler(t) ? HandlerLocation.Local :

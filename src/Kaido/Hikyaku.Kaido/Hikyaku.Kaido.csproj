@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Authors>Paolo Possanzini</Authors>
-    <Description>RPC extensions for AxonFlow via pipeline</Description>
+    <Description>RPC extensions for Hikyaku via pipeline</Description>
     <Copyright>Copyright Paolo Possanzini</Copyright>
     <Features>strict</Features>
     <PackageTags>mediator;request;response;queries;commands;notifications;rpc,orchestrator</PackageTags>
@@ -15,7 +15,7 @@
     <Deterministic>true</Deterministic>
     <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <RepositoryUrl>https://github.com/ppossanzini/hikyaku</RepositoryUrl>
-    <PackageId>AxonFlow.Flow</PackageId>
+    <PackageId>Hikyaku.Kaido</PackageId>
     <PackageIcon>Logo-128.png</PackageIcon>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\Hikyaku.snk</AssemblyOriginatorKeyFile>
@@ -34,7 +34,6 @@
   <ItemGroup>
     <None Include="..\..\..\assets\Logo-128.png">
       <Pack>True</Pack>
-      <PackagePath></PackagePath>
       <Link>Logo-128.png</Link>
     </None>
   </ItemGroup>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Authors>Paolo Possanzini, Alessandro Esposito</Authors>
-    <Description>RPC extensions for AxonFlow via pipeline using Apache Kafka</Description>
+    <Description>RPC extensions for Hikyaku via pipeline using Apache Kafka</Description>
     <Copyright>Copyright Paolo Possanzini</Copyright>
     <Features>strict</Features>
     <PackageTags>mediator;request;response;queries;commands;notifications;rpc;kafka</PackageTags>
@@ -18,7 +18,7 @@
 
     <RepositoryUrl>https://github.com/ppossanzini/Hikyaku</RepositoryUrl>
     <PackageIcon>Logo-128.png</PackageIcon>
-    <PackageId>AxonFlow.Flow.Kafka</PackageId>
+    <PackageId>Hikyaku.Kaido.Kafka</PackageId>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\Hikyaku.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -28,7 +28,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.*"/>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9"/>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
-    <PackageReference Include="AxonFlow.Flow" Version="[9.5.0,)"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -37,5 +36,9 @@
       <PackagePath></PackagePath>
       <Link>Logo-128.png</Link>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hikyaku.Kaido\Hikyaku.Kaido.csproj" />
   </ItemGroup>
 </Project>

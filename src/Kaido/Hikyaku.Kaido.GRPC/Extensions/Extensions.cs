@@ -15,11 +15,11 @@ namespace Microsoft.Extensions.DependencyInjection
 {
   public static class Extensions
   {
-    public const string AxonFlowGrpcCorsDefaultPolicy = "AxonFlowGRPCDefault";
+    public const string HikyakuGrpcCorsDefaultPolicy = "HikyakuGRPCDefault";
 
-    public static void AddAxonFlowGrpcCors(this CorsOptions corsOptions)
+    public static void AddHikyakuGrpcCors(this CorsOptions corsOptions)
     {
-      corsOptions.AddPolicy(AxonFlowGrpcCorsDefaultPolicy, builder =>
+      corsOptions.AddPolicy(HikyakuGrpcCorsDefaultPolicy, builder =>
       {
         builder.AllowAnyOrigin()
           .AllowAnyMethod()
@@ -109,7 +109,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <param name="grpcOptions">Grpc service configuration options, if not specified you need to call AddGrpc()
     /// registration method.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddAxonFlowGrpcDispatcher(this IServiceCollection services,
+    public static IServiceCollection AddHikyakuGrpcDispatcher(this IServiceCollection services,
       Action<MessageDispatcherOptions> config,
       Action<GrpcServiceOptions<MessageDispatcher>> grpcOptions = null)
     {
@@ -119,7 +119,7 @@ namespace Microsoft.Extensions.DependencyInjection
         gbuilder.AddServiceOptions(grpcOptions);
       }
 
-      services.AddCors(o => o.AddAxonFlowGrpcCors());
+      services.AddCors(o => o.AddHikyakuGrpcCors());
 
       services.Configure(config);
       services.AddKeyedSingleton<IExternalMessageDispatcher, MessageDispatcher>(Router.RouterKeyServicesName);
@@ -152,7 +152,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
       host.MapGrpcService<RequestsManager>()
         .EnableGrpcWeb()
-        .RequireCors(AxonFlowGrpcCorsDefaultPolicy);
+        .RequireCors(HikyakuGrpcCorsDefaultPolicy);
       return host;
     }
 

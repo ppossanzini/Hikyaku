@@ -2,6 +2,6 @@ namespace Hikyaku.Kaido.Kafka
 {
   public class Consts
   {
-    public const string AxonFlowExchangeName = "Hikyaku.Router-RPC-Exchange";
+    public const string HikyakuExchangeName = "Hikyaku.Router-RPC-Exchange";
   }
 }

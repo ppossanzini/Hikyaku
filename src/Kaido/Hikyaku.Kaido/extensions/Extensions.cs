@@ -49,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
       services.AddKaido(cfg =>
       {
-        cfg.Behaviour = AxonFlowBehaviourEnum.ImplicitRemote;
+        cfg.Behaviour = HikyakuBehaviourEnum.ImplicitRemote;
         cfg.InferLocalRequests(assemblies);
         cfg.InferLocalNotifications(assemblies);
       });
@@ -63,7 +63,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <param name="assemblies">The assemblies to search for request handlers.</param>
     /// <param name="queuePrefix">Prefix for Exchange and queues for requests</param>
     /// <param name="logger">Logger instance to allow information during configuration</param>
-    /// <returns>The updated axonflow options with the inferred local requests.</returns>
+    /// <returns>The updated hikyaku options with the inferred local requests.</returns>
     public static RouterOptions InferLocalRequests(this RouterOptions options, IEnumerable<Assembly> assemblies, string queuePrefix = null,
       ILogger logger = null)
     {
@@ -104,13 +104,13 @@ namespace Microsoft.Extensions.DependencyInjection
     }
 
     /// <summary>
-    /// Sets the specified type of request as a local request in the given AxonFlowOptions object.
+    /// Sets the specified type of request as a local request in the given HikyakuOptions object.
     /// </summary>
     /// <typeparam name="T">The type of the request to set as local.</typeparam>
-    /// <param name="options">The AxonFlowOptions object to modify.</param>
+    /// <param name="options">The HikyakuOptions object to modify.</param>
     /// <param name="queuePrefix">Prefix for Exchange and queues for requests</param>
     /// <param name="logger">Logger instance to allow information during configuration</param>
-    /// <returns>The modified AxonFlowOptions object.</returns>
+    /// <returns>The modified HikyakuOptions object.</returns>
     public static RouterOptions SetAsLocalRequest<T>(this RouterOptions options, string queuePrefix = null, ILogger logger = null)
       where T : MediatR.IBaseRequest
     {
@@ -126,10 +126,10 @@ namespace Microsoft.Extensions.DependencyInjection
     }
 
     /// <summary>
-    /// Listens for a notification and adds it to the local requests list in the AxonFlowOptions instance. </summary> <typeparam name="T">The type of the notification to listen for. It must implement the INotification interface.</typeparam> <param name="options">The AxonFlowOptions instance to add the notification to.</param>
+    /// Listens for a notification and adds it to the local requests list in the HikyakuOptions instance. </summary> <typeparam name="T">The type of the notification to listen for. It must implement the INotification interface.</typeparam> <param name="options">The HikyakuOptions instance to add the notification to.</param>
     /// <param name="queuePrefix">Prefix for Exchange and queues for requests</param>
     /// <param name="logger">Logger instance to allow information during configuration</param>
-    /// <returns>The updated AxonFlowOptions instance with the notification added to the local requests list.</returns>
+    /// <returns>The updated HikyakuOptions instance with the notification added to the local requests list.</returns>
     /// /
     public static RouterOptions ListenForNotification<T>(this RouterOptions options, string queuePrefix = null, ILogger logger = null)
       where T : MediatR.INotification
@@ -255,11 +255,11 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// Sets the Types as remote requests.
     /// </summary>
-    /// <param name="options">The AxonFlowOptions object.</param>
+    /// <param name="options">The HikyakuOptions object.</param>
     /// <param name="typesSelect">The function that returns IEnumerable of Type objects.</param>
     /// <param name="queuePrefix">Prefix for Exchange and queues for requests</param>
     /// <param name="logger">Logger instance to allow information during configuration</param>
-    /// <returns>The modified AxonFlowOptions object.</returns>
+    /// <returns>The modified HikyakuOptions object.</returns>
     public static RouterOptions SetAsRemoteRequests(this RouterOptions options, Func<IEnumerable<Type>> typesSelect, string queuePrefix = null,
       ILogger logger = null)
     {
@@ -284,11 +284,11 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// Set a prefix for notifications queue name.
     /// </summary>
-    /// <param name="options">The AxonFlowOptions object.</param>
+    /// <param name="options">The HikyakuOptions object.</param>
     /// <param name="typesSelect">The function that returns IEnumerable of Type objects.</param>
     /// <param name="queuePrefix">Prefix for Exchange and queues for notification</param>
     /// <param name="logger">Logger instance to allow information during configuration</param>
-    /// <returns>The modified AxonFlowOptions object.</returns>
+    /// <returns>The modified HikyakuOptions object.</returns>
     public static RouterOptions SetNotificationPrefix(this RouterOptions options, Func<IEnumerable<Type>> typesSelect, string queuePrefix,
       ILogger logger = null)
     {
@@ -344,11 +344,11 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// Set a prefix for notifications queue name.
     /// </summary>
-    /// <param name="options">The AxonFlowOptions object.</param>
+    /// <param name="options">The HikyakuOptions object.</param>
     /// <param name="assemblySelect">The function to select the assemblies.</param>
     /// <param name="queuePrefix">Prefix for Exchange and queues for notification</param>
     /// <param name="logger">Logger instance to allow information during configuration</param>
-    /// <returns>The modified AxonFlowOptions object.</returns>
+    /// <returns>The modified HikyakuOptions object.</returns>
     public static RouterOptions SetNotificationPrefix(this RouterOptions options, Func<IEnumerable<Assembly>> assemblySelect, string queuePrefix,
       ILogger logger = null)
     {

@@ -43,13 +43,13 @@ namespace Hikyaku.Kaido.GRPC
     }
 
 
-    public override async Task<MessageResponse> ManageAxonFlowMessage(RequestMessage request, ServerCallContext context)
+    public override async Task<MessageResponse> ManageHikyakuMessage(RequestMessage request, ServerCallContext context)
     {
       _logger.LogDebug("Message Received. Looking for type");
-      if (_typeMappings.TryGetValue(request.AxonFlowType, out var messageType))
+      if (_typeMappings.TryGetValue(request.HikyakuType, out var messageType))
       {
         var consumerMethod = typeof(RequestsManager)
-          .GetMethod(nameof(RequestsManager.ManageGenericAxonFlowMessage), BindingFlags.Instance | BindingFlags.NonPublic)?
+          .GetMethod(nameof(RequestsManager.ManageGenericHikyakuMessage), BindingFlags.Instance | BindingFlags.NonPublic)?
           .MakeGenericMethod(messageType);
 
         var response = await ((Task<string>)consumerMethod!.Invoke(this, new object[] { request }))!;
@@ -59,13 +59,13 @@ namespace Hikyaku.Kaido.GRPC
       return null;
     }
 
-    public override async Task<Empty> ManageAxonFlowNotification(NotifyMessage request, ServerCallContext context)
+    public override async Task<Empty> ManageHikyakuNotification(NotifyMessage request, ServerCallContext context)
     {
       _logger.LogDebug("Notification Received. Looking for type");
-      if (_typeMappings.TryGetValue(request.AxonFlowType, out var messageType))
+      if (_typeMappings.TryGetValue(request.HikyakuType, out var messageType))
       {
         var consumerMethod = typeof(RequestsManager)
-          .GetMethod(nameof(RequestsManager.ManageGenericAxonFlowNotification), BindingFlags.Instance | BindingFlags.NonPublic)?
+          .GetMethod(nameof(RequestsManager.ManageGenericHikyakuNotification), BindingFlags.Instance | BindingFlags.NonPublic)?
           .MakeGenericMethod(messageType);
 
         await ((Task)consumerMethod!.Invoke(this, new object[] { request }))!;
@@ -74,7 +74,7 @@ namespace Hikyaku.Kaido.GRPC
       return new Empty();
     }
 
-    private async Task<string> ManageGenericAxonFlowMessage<T>(RequestMessage request)
+    private async Task<string> ManageGenericHikyakuMessage<T>(RequestMessage request)
     {
       string responseMsg = null;
       try
@@ -105,7 +105,7 @@ namespace Hikyaku.Kaido.GRPC
       return responseMsg;
     }
 
-    private async Task ManageGenericAxonFlowNotification<T>(NotifyMessage request)
+    private async Task ManageGenericHikyakuNotification<T>(NotifyMessage request)
     {
       var kaido = _provider.CreateScope().ServiceProvider.GetRequiredService<IHikyaku>();
       var router = kaido as Kaido;
@@ -119,7 +119,7 @@ namespace Hikyaku.Kaido.GRPC
           lock (_deDuplicationCache)
             if (_deDuplicationCache.Contains(hash))
             {
-              _logger.LogDebug($"duplicated message received : {request.AxonFlowType}");
+              _logger.LogDebug($"duplicated message received : {request.HikyakuType}");
               return;
             }
 

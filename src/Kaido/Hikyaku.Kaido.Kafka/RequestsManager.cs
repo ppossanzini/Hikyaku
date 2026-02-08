@@ -8,9 +8,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Axon;
-using Axon.Flow;
-using Axon.Flow.Messages;
+using Hikyaku.Kaido.Messages;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
@@ -24,7 +22,7 @@ namespace Hikyaku.Kaido.Kafka
     private readonly ILogger<RequestsManager> _logger;
     private readonly IRouter _router;
     private readonly IServiceProvider _provider;
-    private readonly RouterOptions _axonflowOptions;
+    private readonly RouterOptions _hikyakuOptions;
 
     private readonly MessageDispatcherOptions _options;
     private IProducer<Null, string> _producer;
@@ -39,13 +37,13 @@ namespace Hikyaku.Kaido.Kafka
     private readonly Dictionary<string, MethodInfo> _methods = new Dictionary<string, MethodInfo>();
 
     public RequestsManager(ILogger<RequestsManager> logger, IOptions<MessageDispatcherOptions> options, IRouter router, IServiceProvider provider,
-      IOptions<RouterOptions> axonflowOptions)
+      IOptions<RouterOptions> hikyakuOptions)
     {
       _logger = logger;
       _options = options.Value;
       this._router = router;
       this._provider = provider;
-      _axonflowOptions = axonflowOptions.Value;
+      _hikyakuOptions = hikyakuOptions.Value;
     }
 
     /// <summary>
@@ -76,24 +74,24 @@ namespace Hikyaku.Kaido.Kafka
       foreach (var t in _router.GetLocalRequestsTypes())
       {
         if (t is null) continue;
-        _provider.CreateTopicAsync(_options, t.AxonTypeName(_axonflowOptions));
+        _provider.CreateTopicAsync(_options, t.AxonTypeName(_hikyakuOptions));
 
 
         if (t.IsNotification())
         {
-          notificationsSubscriptions.Add(t.AxonTypeName(_axonflowOptions));
+          notificationsSubscriptions.Add(t.AxonTypeName(_hikyakuOptions));
           var consumerMethod = typeof(RequestsManager)
             .GetMethod("ConsumeChannelNotification", BindingFlags.Instance | BindingFlags.NonPublic)?
             .MakeGenericMethod(t);
-          _methods.Add(t.AxonTypeName(_axonflowOptions), consumerMethod);
+          _methods.Add(t.AxonTypeName(_hikyakuOptions), consumerMethod);
         }
         else
         {
-          requestSubscriptions.Add(t.AxonTypeName(_axonflowOptions));
+          requestSubscriptions.Add(t.AxonTypeName(_hikyakuOptions));
           var consumerMethod = typeof(RequestsManager)
             .GetMethod("ConsumeChannelMessage", BindingFlags.Instance | BindingFlags.NonPublic)?
             .MakeGenericMethod(t);
-          _methods.Add(t.AxonTypeName(_axonflowOptions), consumerMethod);
+          _methods.Add(t.AxonTypeName(_hikyakuOptions), consumerMethod);
         }
       }
 
@@ -142,13 +140,13 @@ namespace Hikyaku.Kaido.Kafka
         return;
       }
 
-      var axon = _provider.CreateScope().ServiceProvider.GetRequiredService<IAxon>();
+      var axon = _provider.CreateScope().ServiceProvider.GetRequiredService<IHikyaku>();
       try
       {
-        var axonflow = axon as AxonFlow;
-        axonflow?.StopPropagating();
+        var hikyaku = axon as Kaido;
+        hikyaku?.StopPropagating();
         await axon.PublishObject(message.Message);
-        axonflow?.ResetPropagating();
+        hikyaku?.ResetPropagating();
       }
       catch (Exception ex)
       {
@@ -173,7 +171,7 @@ namespace Hikyaku.Kaido.Kafka
         return;
       }
 
-      var axon = _provider.CreateScope().ServiceProvider.GetRequiredService<IAxon>();
+      var axon = _provider.CreateScope().ServiceProvider.GetRequiredService<IHikyaku>();
       string responseMsg = null;
       try
       {

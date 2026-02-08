@@ -5,9 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Axon;
-using Axon.Flow;
-using Axon.Flow.Messages;
+using Hikyaku.Kaido.Messages;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -32,7 +30,7 @@ namespace Hikyaku.Kaido.RabbitMQ
     private readonly ILogger<RequestsManager> _logger;
 
     /// <summary>
-    /// The private readonly field that holds an instance of the IAxonFlow interface.
+    /// The private readonly field that holds an instance of the IHikyaku interface.
     /// </summary>
     private readonly IRouter _router;
 
@@ -98,7 +96,7 @@ namespace Hikyaku.Kaido.RabbitMQ
         if (t is null) continue;
         var isNotification = t.IsNotification();
         var isDurableNotification = isNotification && _routerOptions.QueueNames.ContainsKey(t);
-        var queueNames = t.AxonFlowQueueName(_routerOptions);
+        var queueNames = t.HikyakuQueueName(_routerOptions);
 
         var arguments = new Dictionary<string, object>();
         var timeout = t.QueueTimeout();
@@ -222,8 +220,8 @@ namespace Hikyaku.Kaido.RabbitMQ
     /// /
     private async Task ConsumeChannelNotification<T>(object _, BasicDeliverEventArgs ea)
     {
-      var axon = _provider.CreateScope().ServiceProvider.GetRequiredService<IAxon>();
-      var axonFlow = axon as AxonFlow;
+      var axon = _provider.CreateScope().ServiceProvider.GetRequiredService<IHikyaku>();
+      var hikyaku = axon as Kaido;
       try
       {
         var msg = ea.Body.ToArray();
@@ -231,7 +229,7 @@ namespace Hikyaku.Kaido.RabbitMQ
         _logger.LogDebug("Elaborating notification : {0}", Encoding.UTF8.GetString(msg));
         var message = JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(msg), _options.SerializerSettings);
 
-        axonFlow?.StopPropagating();
+        hikyaku?.StopPropagating();
         await axon.PublishObject(message);
       }
       catch (Exception ex)
@@ -240,7 +238,7 @@ namespace Hikyaku.Kaido.RabbitMQ
       }
       finally
       {
-        axonFlow?.ResetPropagating();
+        hikyaku?.ResetPropagating();
       }
     }
 
@@ -269,7 +267,7 @@ namespace Hikyaku.Kaido.RabbitMQ
         _logger.LogDebug("Elaborating message : {0}", Encoding.UTF8.GetString(msg));
         var message = JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(msg), _options.SerializerSettings);
 
-        var axon = _provider.CreateScope().ServiceProvider.GetRequiredService<IAxon>();
+        var axon = _provider.CreateScope().ServiceProvider.GetRequiredService<IHikyaku>();
         var response = await axon.SendObject(message);
         responseMsg = JsonConvert.SerializeObject(new ResponseMessage { Content = response, Status = StatusEnum.Ok },
           _options.SerializerSettings);

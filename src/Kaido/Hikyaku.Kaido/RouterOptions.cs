@@ -8,12 +8,12 @@ namespace Hikyaku.Kaido
     public string DefaultQueuePrefix { get; set; } = String.Empty;
 
     /// <summary>
-    /// Gets or sets the behavior of the axonflow.
+    /// Gets or sets the behavior of the Hikyaku.
     /// </summary>
     /// <value>
-    /// The behaviour of the axon flow.
+    /// The behaviour of the Hikyaku.
     /// </value>
-    public AxonFlowBehaviourEnum Behaviour { get; set; } = AxonFlowBehaviourEnum.ImplicitLocal;
+    public HikyakuBehaviourEnum Behaviour { get; set; } = HikyakuBehaviourEnum.ImplicitLocal;
 
     /// <summary>
     /// Gets or sets the collection of local requests.
@@ -38,7 +38,7 @@ namespace Hikyaku.Kaido
   /// <summary>
   /// Specifies the possible behaviours of an arbitrator.
   /// </summary>
-  public enum AxonFlowBehaviourEnum
+  public enum HikyakuBehaviourEnum
   {
     ImplicitLocal,
     ImplicitRemote,

@@ -7,6 +7,7 @@ using Confluent.Kafka;
 using System.Threading.Tasks;
 using System;
 using System.Threading;
+using Hikyaku.Kaido.Messages;
 using Microsoft.Extensions.DependencyInjection;
 
 
@@ -21,7 +22,7 @@ namespace Hikyaku.Kaido.Kafka
     private readonly MessageDispatcherOptions _options;
     private readonly ILogger<MessageDispatcher> _logger;
     private readonly IServiceProvider _provider;
-    private readonly RouterOptions _axonflowOptions;
+    private readonly RouterOptions _hikyakuOptions;
     private IProducer<Null, string> _producer;
     private IConsumer<Null, string> _consumer;
     private string _replyTopicName;
@@ -32,12 +33,12 @@ namespace Hikyaku.Kaido.Kafka
       new ConcurrentDictionary<string, TaskCompletionSource<string>>();
 
     public MessageDispatcher(IOptions<MessageDispatcherOptions> options, ILogger<MessageDispatcher> logger, IServiceProvider provider,
-      IOptions<RouterOptions> axonflowOptions)
+      IOptions<RouterOptions> hikyakuOptions)
     {
       this._options = options.Value;
       this._logger = logger;
       _provider = provider;
-      _axonflowOptions = axonflowOptions.Value;
+      _hikyakuOptions = hikyakuOptions.Value;
       this.InitConnection();
     }
 
@@ -114,7 +115,7 @@ namespace Hikyaku.Kaido.Kafka
     public async Task<ResponseMessage<TResponse>> Dispatch<TRequest, TResponse>(TRequest request,
       CancellationToken cancellationToken = default)
     {
-      var internalQueue = typeof(TRequest).AxonTypeName(_axonflowOptions);
+      var internalQueue = typeof(TRequest).AxonTypeName(_hikyakuOptions);
       string queueName = (request as IRouteTo)?.RouteTo(internalQueue);
 
       var correlationId = Guid.NewGuid().ToString();
@@ -129,7 +130,7 @@ namespace Hikyaku.Kaido.Kafka
       var tcs = new TaskCompletionSource<string>();
       _callbackMapper.TryAdd(correlationId, tcs);
 
-      var internalTypeName = typeof(TRequest).AxonTypeName(_axonflowOptions);
+      var internalTypeName = typeof(TRequest).AxonTypeName(_hikyakuOptions);
       var routeto = request as IRouteTo;
 
       await _producer.ProduceAsync(
@@ -150,14 +151,14 @@ namespace Hikyaku.Kaido.Kafka
     /// <param name="request">The request object.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
-    public async Task Notify<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : MediatR.INotification
+    public async Task Notify<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : INotification
     {
-      var internalQueue = typeof(TRequest).AxonTypeName(_axonflowOptions);
+      var internalQueue = typeof(TRequest).AxonTypeName(_hikyakuOptions);
       string queueName = (request as IRouteTo)?.RouteTo(internalQueue);
 
       var message = JsonConvert.SerializeObject(request, _options.SerializerSettings);
 
-      _logger.LogInformation($"Sending message to: {Consts.AxonFlowExchangeName}/{queueName ?? internalQueue}");
+      _logger.LogInformation($"Sending message to: {Consts.HikyakuExchangeName}/{queueName ?? internalQueue}");
 
       await _producer.ProduceAsync(
         topic: queueName ?? internalQueue,

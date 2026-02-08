@@ -4,8 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using Axon;
-using Axon.Flow;
+using Hikyaku.Kaido;
 using Hikyaku.Kaido.RabbitMQ;
 
 // ReSharper disable ClassNeverInstantiated.Global
@@ -24,15 +23,15 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <param name="services">The service collection to add the message dispatcher to.</param>
     /// <param name="config">The configuration settings for the message dispatcher.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddAxonFlowRabbitMQMessageDispatcher(this IServiceCollection services,
+    public static IServiceCollection AddHikyakuRabbitMQMessageDispatcher(this IServiceCollection services,
       Action<MessageDispatcherOptions> config)
     {
       services.Configure<MessageDispatcherOptions>(config);
-      services.AddKeyedSingleton<IExternalMessageDispatcher, MessageDispatcher>(global::Axon.Flow.Router.RouterKeyServicesName);
+      services.AddKeyedSingleton<IExternalMessageDispatcher, MessageDispatcher>(global::Hikyaku.Kaido.Router.RouterKeyServicesName);
       return services;
     }
 
-    public static string[] AxonFlowQueueName(this Type t, RouterOptions options, StringBuilder sb = null)
+    public static string[] HikyakuQueueName(this Type t, RouterOptions options, StringBuilder sb = null)
     {
       if (options.QueueNames.TryGetValue(t, out HashSet<string> queueNames)) return queueNames.ToArray();
 
@@ -126,12 +125,12 @@ namespace Microsoft.Extensions.DependencyInjection
     }
 
     /// <summary>
-    /// Resolves the axonflow calls by adding the RequestManager as a hosted service to the specified service collection.
+    /// Resolves the hikyaku calls by adding the RequestManager as a hosted service to the specified service collection.
     /// </summary>
     /// <param name="services">The service collection to which the RequestManager will be added.</param>
     /// <returns>The modified service collection.</returns>
     [Obsolete("use AddRabbitMQRequestManager method instead")]
-    public static IServiceCollection ResolveAxonFlowCalls(this IServiceCollection services)
+    public static IServiceCollection ResolveHikyakuCalls(this IServiceCollection services)
     {
       services.AddHostedService<RequestsManager>();
       return services;
