@@ -1,4 +1,4 @@
-![Logo.png](assets/Logo-128.png) ![Logo.png](assets/Kaido 128.png) ![Logo.png](assets/Jigen 128.png)
+![Logo.png](assets/Hikyaku-128.png) ![Logo.png](assets/Kaido-128.png) ![Logo.png](assets/Jigen-128.png)
 
 [![NuGet](https://img.shields.io/nuget/dt/Hikyaku.svg)](https://www.nuget.org/packages/Hikyaku) 
 [![NuGet](https://img.shields.io/nuget/vpre/Hikyaku.svg)](https://www.nuget.org/packages/Hikyaku)
