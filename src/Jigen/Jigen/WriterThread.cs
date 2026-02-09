@@ -2,8 +2,7 @@ using Jigen.Extensions;
 
 namespace Jigen;
 
-public class Writer<T, TE>
-  where T : struct where TE : struct
+public class Writer
 {
   private volatile bool _running = true;
 
@@ -11,20 +10,15 @@ public class Writer<T, TE>
   private readonly Thread _flusher;
 
   private readonly AutoResetEvent _waiter = new(false);
-  private readonly ManualResetEvent _writingCompleted = new(true); // queue drained at start
-
-  // Wake flusher on Stop() so it doesn't wait 30s
+  private readonly ManualResetEvent _writingCompleted = new(true);
   private readonly AutoResetEvent _flushWake = new(false);
 
-  // Single lock guarding ALL stream I/O (writes + flush)
   private readonly object _ioLock = new();
+  private readonly Store _store;
 
-  private readonly Store<T, TE> _store;
-
-  // Policy (3): "completed" == queue drained (not flushed)
   public Task WaitForWritingCompleted => Task.Run(() => _writingCompleted.WaitOne());
 
-  public Writer(Store<T, TE> store)
+  public Writer(Store store)
   {
     _store = store;
     _writingThread = new Thread(WriterJob) { IsBackground = true };
@@ -36,7 +30,7 @@ public class Writer<T, TE>
 
   internal void SignalNewData()
   {
-    _writingCompleted.Reset(); // there is (or will be) work to do
+    _writingCompleted.Reset();
     _waiter.Set();
   }
 
@@ -49,12 +43,11 @@ public class Writer<T, TE>
       _flushWake.WaitOne(TimeSpan.FromSeconds(30));
       if (!_running) break;
 
-      // Flush only when writer is idle (queue drained)
+      // Flush only when writer is idle
       if (!_writingCompleted.WaitOne(0)) continue;
 
       lock (_ioLock)
       {
-        // FlushAsync + GetResult is OK here since we're on a dedicated thread
         _store.EmbeddingFileStream.FlushAsync().GetAwaiter().GetResult();
         _store.ContentFileStream.FlushAsync().GetAwaiter().GetResult();
         _store.IndexFileStream.FlushAsync().GetAwaiter().GetResult();
@@ -99,7 +92,6 @@ public class Writer<T, TE>
   {
     _running = false;
 
-    // Wake both threads promptly
     _waiter.Set();
     _flushWake.Set();
 

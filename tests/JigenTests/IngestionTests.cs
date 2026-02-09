@@ -10,16 +10,15 @@ namespace JigenTests;
 public class IngestionTests
 {
   private readonly ITestOutputHelper _testOutputHelper;
-  private Store<float, sbyte> _store = null;
+  private Store _store = null;
 
   public IngestionTests(ITestOutputHelper testOutputHelper)
   {
     _testOutputHelper = testOutputHelper;
-    _store = new Store<float, sbyte>(new StoreOptions<float, sbyte>()
+    _store = new Store(new StoreOptions()
     {
       DataBaseName = "tests",
-      DataBasePath = "/data/jigendb",
-      QuantizationFunction = i => i.Normalize().Quantize().ToArray()
+      DataBasePath = "/data/jigendb"
     });
   }
 
@@ -35,7 +34,7 @@ public class IngestionTests
     sw.Start();
 
     for (var x = 0; x < count; x++)
-      await _store.AppendContent(new VectorEntry<float>()
+      await _store.AppendContent(new VectorEntry()
       {
         Content =
           "Animalia is an illustrated children's book by Graeme Base. It was originally published in 1986, followed by a tenth anniversary edition in 1996, and a 25th anniversary edition in 2012. Over three million copies have been sold.   A special numbered and signed anniversary edition was also published in 1996, with an embossed gold jacket.",
@@ -224,7 +223,7 @@ public class IngestionTests
     sw.Start();
 
     await Parallel.ForAsync(0, count, async (_, _) =>
-      await _store.AppendContent(new VectorEntry<float>()
+      await _store.AppendContent(new VectorEntry()
       {
         Content =
           "Animalia is an illustrated children's book by Graeme Base. It was originally published in 1986, followed by a tenth anniversary edition in 1996, and a 25th anniversary edition in 2012. Over three million copies have been sold.   A special numbered and signed anniversary edition was also published in 1996, with an embossed gold jacket.",

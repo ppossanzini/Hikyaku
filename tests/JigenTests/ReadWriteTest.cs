@@ -9,17 +9,16 @@ namespace JigenTests;
 public class ReadWriteTest : IDisposable
 {
   private readonly ITestOutputHelper _testOutputHelper;
-  private Store<float, float> _store;
+  private Store _store;
   private Jigen.SemanticTools.OnnxEmbeddingGenerator _embeddingGenerator;
 
   public ReadWriteTest(ITestOutputHelper testOutputHelper)
   {
     _testOutputHelper = testOutputHelper;
-    _store = new Store<float, float>(new StoreOptions<float, float>()
+    _store = new Store(new StoreOptions()
     {
       DataBaseName = "readwritetest",
       DataBasePath = "/data/jigendb",
-      QuantizationFunction = i => i,//.Normalize().Quantize().ToArray(), 
       VectorSize = 1024, InitialVectorDBSize = 1, InitialContentDBSize = 1
     });
 
@@ -55,7 +54,7 @@ public class ReadWriteTest : IDisposable
 
     foreach (var s in sentences)
     {
-      var rr = await _store.AppendContent(new VectorEntry<float>()
+      var rr = await _store.AppendContent(new VectorEntry()
       {
         Content = s, Embedding = _embeddingGenerator.GenerateEmbedding(s), Id = 0
       });

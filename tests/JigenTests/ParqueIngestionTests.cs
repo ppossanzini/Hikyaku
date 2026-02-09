@@ -11,15 +11,14 @@ namespace JigenTests;
 
 public class ParqueIngestionTests : IDisposable
 {
-  private Store<float, sbyte> _store = null;
+  private Store _store = null;
 
   public ParqueIngestionTests()
   {
-    _store = new Store<float, sbyte>(new StoreOptions<float, sbyte>()
+    _store = new Store(new StoreOptions()
     {
       DataBaseName = "openai_llm",
-      DataBasePath = "/data/jigendb",
-      QuantizationFunction = i => i.Normalize().Quantize().ToArray()
+      DataBasePath = "/data/jigendb"
     });
   }
 
@@ -48,7 +47,7 @@ public class ParqueIngestionTests : IDisposable
 
       for (int j = 0; j < content.Data.Length; j++)
       {
-        await _store.AppendContent(new VectorEntry<float>()
+        await _store.AppendContent(new VectorEntry()
         {
           Id = 0,
           Content = content.Data.GetValue(j)?.ToString(),

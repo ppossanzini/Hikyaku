@@ -11,12 +11,10 @@ using Jigen.PerformancePrimitives;
 
 namespace Jigen;
 
-public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
-  where TEmbeddings : struct
-  where TEmbeddingVector : struct
+public class Store : IStore, IDisposable
 {
   private const int CircularWritingBufferSize = 1_000_000;
-  internal readonly CircularMemoryQueue<VectorEntry<TEmbeddings>> IngestionQueue = new(CircularWritingBufferSize);
+  internal readonly CircularMemoryQueue<VectorEntry> IngestionQueue = new(CircularWritingBufferSize);
 
   // MemoryMappedFiles only for reading
   internal MemoryMappedFile ContentData;
@@ -27,11 +25,12 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
   internal FileStream EmbeddingFileStream;
   internal FileStream IndexFileStream;
 
-
-  internal readonly StoreOptions<TEmbeddings, TEmbeddingVector> Options;
+  internal readonly StoreOptions Options;
   internal readonly StoreHeader VectorStoreHeader = new();
 
-  internal readonly Writer<TEmbeddings, TEmbeddingVector> Writer;
+  internal Dictionary<long, (long contentposition, long embeddingsposition, long size)> PositionIndex { get; set; } = new();
+
+  internal readonly Writer Writer;
 
   internal string ContentFullFileName
   {
@@ -48,9 +47,8 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
     get { return Path.Combine(this.Options.DataBasePath, $"{this.Options.DataBaseName}.{this.Options.EmbeddingSuffix}.jigen"); }
   }
 
-  internal Dictionary<long, (long contentposition, long embeddingsposition, long size)> PositionIndex { get; set; } = new();
 
-  public Store(StoreOptions<TEmbeddings, TEmbeddingVector> options)
+  public Store(StoreOptions options)
   {
     this.Options = options;
     this.VectorStoreHeader.EmbeddingSize = options.VectorSize;
@@ -62,7 +60,7 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
     this.LoadIndex();
     this.ReadHeader();
 
-    Writer = new Writer<TEmbeddings, TEmbeddingVector>(this);
+    Writer = new Writer(this);
   }
 
   internal void EnableWriting()
@@ -98,7 +96,7 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
   {
     this.EmbeddingFileStream.FlushAsync().GetAwaiter().GetResult();
     this.ContentFileStream.FlushAsync().GetAwaiter().GetResult();
-    
+
     this.EnableReading();
   }
 
@@ -127,7 +125,6 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
     if (!File.Exists(EmbeddingsFullFileName))
     {
       using var stream = File.Create(EmbeddingsFullFileName);
-      // stream.SetLength(Options.InitialContentDBSize * 1024 * 1024);
       stream.Seek(0, SeekOrigin.Begin);
       using var writer = new BinaryWriter(stream);
 
@@ -152,8 +149,6 @@ public class Store<TEmbeddings, TEmbeddingVector> : IStore, IDisposable
     if (!File.Exists(ContentFullFileName))
     {
       using var stream = File.Create(ContentFullFileName);
-      // stream.SetLength(Options.InitialContentDBSize * 1024 * 1024);
-
       using var writer = new BinaryWriter(stream);
       writer.Write(VectorStoreHeader.ContentCurrentPosition = sizeof(long));
 

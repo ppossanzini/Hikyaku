@@ -10,9 +10,7 @@ namespace Jigen.Extensions;
 
 public static class SimdSearchExtensions
 {
-  public static unsafe List<(VectorEntry<TEmbeddings> entry, float score)> Search<TEmbeddings, TEmbeddingVector>(this Store<TEmbeddings, TEmbeddingVector> store, float[] queryVector, int top)
-    where TEmbeddings : struct
-    where TEmbeddingVector : struct
+  public static unsafe List<(VectorEntry entry, float score)> Search(this Store store, float[] queryVector, int top)
   {
     if (queryVector is null) throw new ArgumentNullException(nameof(queryVector));
     if (top <= 0) return [];
@@ -29,7 +27,7 @@ public static class SimdSearchExtensions
         accessor.SafeMemoryMappedViewHandle.AcquirePointer(ref pointer);
 
         var headerOffset = 2 * sizeof(long) + sizeof(int);
-        var entrySize = sizeof(long) + sizeof(long) + (vectorSize * sizeof(TEmbeddingVector));
+        var entrySize = sizeof(long) + sizeof(long) + (vectorSize * sizeof(float));
         var totalBytes = (long)store.VectorStoreHeader.EmbeddingCurrentPosition;
         var entryCount = (totalBytes - headerOffset) / entrySize;
 
@@ -56,7 +54,7 @@ public static class SimdSearchExtensions
     }
 
     return topResults.OrderByDescending(r => r.Score).Take(top)
-      .Select(r => (new VectorEntry<TEmbeddings>
+      .Select(r => (new VectorEntry
       {
         Id = r.Id, Content = store.ReadContent(r.Id)
       }, r.Score))

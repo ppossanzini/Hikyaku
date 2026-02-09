@@ -54,14 +54,12 @@ public static class StoreWritingExtensions
     stream.Write(buf);
   }
 
-  private static void WriteByteArray<TE>(FileStream stream, ReadOnlySpan<TE> embeddings)
-    where TE : struct
+  private static void WriteByteArray(FileStream stream, ReadOnlySpan<float> embeddings)
   {
     stream.Write(MemoryMarshal.AsBytes(embeddings));
   }
 
-  internal static async Task RewriteIndex<T, TE>(this Store<T, TE> store)
-    where T : struct where TE : struct
+  internal static async Task RewriteIndex(this Store store)
   {
     // Rewrite in append-only format (v2): no count, just fixed-size entries.
     var stream = store.IndexFileStream;
@@ -80,10 +78,9 @@ public static class StoreWritingExtensions
     await stream.FlushAsync();
   }
 
-  private static async Task AppendIndex<T, TE>(
-    this Store<T, TE> store,
+  private static async Task AppendIndex(
+    this Store store,
     (long id, long contentposition, long embeddingposition, long contentsize) item)
-    where T : struct where TE : struct
   {
     store.PositionIndex[item.id] = (item.contentposition, item.embeddingposition, item.contentsize);
 
@@ -99,25 +96,22 @@ public static class StoreWritingExtensions
   }
 
 
-  public static async Task<VectorEntry<T>> AppendContent<T, TE>(this Store<T, TE> store, VectorEntry<T> entry)
-    where T : struct where TE : struct
+  public static async Task<VectorEntry> AppendContent(this Store store, VectorEntry entry)
   {
     entry.Id = Interlocked.Increment(ref store.VectorStoreHeader.TotalEntityCount);
-    await store.IngestionQueue.Enqueue(entry);
+    await store.IngestionQueue.EnqueueAsync(entry);
     store.Writer.SignalNewData();
     return entry;
   }
 
-  internal static async Task<(long id, long position, long embeddingPosition, long size)>
-    AppendContent<T, TE>(this Store<T, TE> store, long id, string content, T[] embeddings)
-    where T : struct where TE : struct
-  {
-    return await store.AppendContent(id, content, store.Options.QuantizationFunction(embeddings));
-  }
+  // internal static async Task<(long id, long position, long embeddingPosition, long size)>
+  //   AppendContent(this Store store, long id, string content, float[] embeddings)
+  // {
+  //   return await store.AppendContent(id, content, store.Options.QuantizationFunction(embeddings));
+  // }
 
-  private static async Task<(long id, long position, long embeddingPosition, long size)>
-    AppendContent<T, TE>(this Store<T, TE> store, long id, string content, TE[] embeddings)
-    where T : struct where TE : struct
+  internal static async Task<(long id, long position, long embeddingPosition, long size)>
+    AppendContent(this Store store, long id, string content, float[] embeddings)
   {
     var contentStream = store.ContentFileStream;
 
@@ -139,7 +133,7 @@ public static class StoreWritingExtensions
     WriteInt64LE(embeddingsStream, id);
     WriteInt64LE(embeddingsStream, currentPosition);
 
-    WriteByteArray<TE>(embeddingsStream, embeddings);
+    WriteByteArray(embeddingsStream, embeddings);
 
     store.VectorStoreHeader.EmbeddingCurrentPosition = embeddingsStream.Position;
 

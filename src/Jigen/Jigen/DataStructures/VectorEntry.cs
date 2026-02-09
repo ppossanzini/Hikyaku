@@ -1,8 +1,8 @@
 namespace Jigen.DataStructures;
 
-public class VectorEntry<TEmbedding> where TEmbedding : struct
+public class VectorEntry
 {
   public long Id { get; set; }
   public string Content { get; set; }
-  public TEmbedding[] Embedding { get; set; }
+  public float[] Embedding { get; set; }
 }

@@ -39,8 +39,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jigen.SemanticKernel.Connec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jigen.SemanticTools", "src\Jigen\Jigen.SemanticTools\Jigen.SemanticTools.csproj", "{F7E86F49-0476-40DA-8EEA-9F9B115770A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WrtingDB", "tests\WrtingDB\WrtingDB.csproj", "{8F8DD705-9531-4F69-ADFA-EC62F18B732B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,10 +97,6 @@ Global
 		{F7E86F49-0476-40DA-8EEA-9F9B115770A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7E86F49-0476-40DA-8EEA-9F9B115770A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7E86F49-0476-40DA-8EEA-9F9B115770A3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8F8DD705-9531-4F69-ADFA-EC62F18B732B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8F8DD705-9531-4F69-ADFA-EC62F18B732B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8F8DD705-9531-4F69-ADFA-EC62F18B732B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8F8DD705-9531-4F69-ADFA-EC62F18B732B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

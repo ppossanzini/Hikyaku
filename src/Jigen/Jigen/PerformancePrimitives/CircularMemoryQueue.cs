@@ -2,72 +2,100 @@ using System.Runtime.InteropServices;
 
 namespace Jigen.PerformancePrimitives;
 
-[StructLayout(LayoutKind.Explicit, Size = 128)]
-public struct ReadingWritingPositions()
+public class CircularMemoryQueue<T>(int capacity = 1024)
 {
-  [FieldOffset(0)] public long WritingPosition = 0;
-  [FieldOffset(64)] public long ReadingPosition = 0;
-}
+  private readonly Memory<T> _buffer = new T[capacity];
 
-// [StructLayout(LayoutKind.Explicit, Size = 320)]
-public class CircularMemoryQueue<T>(int bufferSize = 1000)
-{
-  private ReadingWritingPositions _positions = new();
+  private long _tail;
+  private long _head;
 
-  private readonly Memory<T> _buffer = new T[bufferSize];
-  private readonly SemaphoreSlim _availableBufferPositions = new(bufferSize, bufferSize);
+  private readonly SemaphoreSlim _availableBufferPositions = new(capacity, capacity);
 
+  private readonly SemaphoreSlim _freeSlots = new(capacity, capacity);
+  private readonly SemaphoreSlim _availableItems = new(0, capacity);
 
-  public bool IsEmpty
-  {
-    get => Interlocked.Read(ref _positions.ReadingPosition) == Interlocked.Read(ref _positions.WritingPosition);
-  }
-
-  public bool IsFull
-  {
-    get => (Interlocked.Read(ref _positions.WritingPosition) % Interlocked.Read(ref _positions.ReadingPosition)) == bufferSize;
-  }
+  public int Length => capacity;
 
   public long Count
   {
-    get => Interlocked.Read(ref _positions.WritingPosition) % Interlocked.Read(ref _positions.ReadingPosition);
+    get => Volatile.Read(ref _tail) - Volatile.Read(ref _head);
   }
 
-  public async Task Enqueue(T item)
+  public bool IsEmpty => Count == 0;
+
+  public async Task EnqueueAsync(T item, CancellationToken cancellationToken = default)
   {
-    await _availableBufferPositions.WaitAsync();
-    var position = (int)(Interlocked.Increment(ref _positions.WritingPosition) % bufferSize);
-    _buffer.Span[position] = item;
+    await _freeSlots.WaitAsync(cancellationToken);
+
+    try
+    {
+      var position = (int)((Interlocked.Increment(ref _tail) - 1) % capacity);
+      _buffer.Span[position] = item;
+    }
+    finally
+    {
+      _availableItems.Release();
+    }
   }
 
-  public T Dequeue()
+  public void Enqueue(T item)
   {
-    if (IsEmpty) return default!;
+    _freeSlots.Wait();
 
-    var position = (int)(Interlocked.Increment(ref _positions.ReadingPosition) % bufferSize);
-    var result = _buffer.Span[position];
-    _buffer.Span[position] = default!;
+    try
+    {
+      var position = (int)((Interlocked.Increment(ref _tail) - 1) % capacity);
+      _buffer.Span[position] = item;
+    }
+    finally
+    {
+      _availableItems.Release();
+    }
+  }
 
-    _availableBufferPositions.Release();
-    return result;
+
+  public T Dequeue(CancellationToken cancellationToken = default)
+  {
+    _availableItems.Wait(cancellationToken);
+
+    try
+    {
+      var position = (int)(_head % capacity);
+      var result = _buffer.Span[position];
+      _buffer.Span[position] = default!;
+
+      Interlocked.Increment(ref _head);
+      return result;
+    }
+    finally
+    {
+      _freeSlots.Release();
+    }
   }
 
   public bool TryDequeue(out T result)
   {
     result = default;
-    if (IsEmpty) return false;
+    if (!_availableItems.Wait(0))
+      return false;
 
-    var position = (int)(Interlocked.Increment(ref _positions.ReadingPosition) % bufferSize);
-    result = _buffer.Span[position];
-    _buffer.Span[position] = default!;
-
-    _availableBufferPositions.Release();
-    return true;
+    try
+    {
+      var position = (int)(_head % capacity);
+      result = _buffer.Span[position];
+      _buffer.Span[position] = default!;
+      Interlocked.Increment(ref _head);
+      return true;
+    }
+    finally
+    {
+      _freeSlots.Release();
+    }
   }
 
   public T Peek()
   {
-    var position = (int)((Interlocked.Read(ref _positions.ReadingPosition) + 1) % bufferSize);
+    var position = (int)(_head % capacity);
     return _buffer.Span[position];
   }
 }
