@@ -34,8 +34,9 @@ public class IngestionTests
     sw.Start();
 
     for (var x = 0; x < count; x++)
-      await _store.AppendContent(new VectorEntry()
+      await _store.AppendContent(new VectorEntry<int>()
       {
+        CollectionName = "animals",
         Content =
           "Animalia is an illustrated children's book by Graeme Base. It was originally published in 1986, followed by a tenth anniversary edition in 1996, and a 25th anniversary edition in 2012. Over three million copies have been sold.   A special numbered and signed anniversary edition was also published in 1996, with an embossed gold jacket.",
         Embedding = new[]
@@ -223,8 +224,9 @@ public class IngestionTests
     sw.Start();
 
     await Parallel.ForAsync(0, count, async (_, _) =>
-      await _store.AppendContent(new VectorEntry()
+      await _store.AppendContent(new VectorEntry<int>()
       {
+        CollectionName = "animals",
         Content =
           "Animalia is an illustrated children's book by Graeme Base. It was originally published in 1986, followed by a tenth anniversary edition in 1996, and a 25th anniversary edition in 2012. Over three million copies have been sold.   A special numbered and signed anniversary edition was also published in 1996, with an embossed gold jacket.",
         Embedding = new[]

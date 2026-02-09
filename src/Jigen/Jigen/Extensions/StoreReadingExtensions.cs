@@ -16,8 +16,7 @@ public static class StoreReadingExtensions
     {
       var stream = store.EmbeddingFileStream;
       stream.Seek(0, SeekOrigin.End);
-      store.VectorStoreHeader.TotalEntityCount = store.PositionIndex.Count == 0 ? 0 : store.PositionIndex.Max(i => i.Key);
-      store.VectorStoreHeader.EmbeddingSize = store.Options.VectorSize;
+      store.VectorStoreHeader.TotalEntityCount = store.PositionIndex.Count == 0 ? 0 : store.PositionIndex.Values.Select(i => i.Keys.Max()).Max();
       store.VectorStoreHeader.EmbeddingCurrentPosition = stream.Position;
     }
 
@@ -41,23 +40,30 @@ public static class StoreReadingExtensions
     while (stream.Position + EntrySize <= stream.Length)
     {
       var id = reader.ReadInt64();
+      var collectionNameLength = reader.ReadInt32();
+      var buffer = new Span<byte>(new byte[collectionNameLength]);
+      stream.ReadExactly(buffer);
+      var collectionName = Encoding.UTF8.GetString(buffer);
       var contentPosition = reader.ReadInt64();
       var embeddingsPosition = reader.ReadInt64();
+      var dimensions = reader.ReadInt32();
       var size = reader.ReadInt64();
 
-      store.PositionIndex[id] = (contentPosition, embeddingsPosition, size);
+      if (!store.PositionIndex.ContainsKey(collectionName))
+        store.PositionIndex.Add(collectionName, new Dictionary<long, (long contentposition, long embeddingsposition, int dimensions, long size)>());
+      store.PositionIndex[collectionName][id] = (contentPosition, embeddingsPosition, dimensions, size);
     }
   }
 
 
-  public static string ReadContent(this Store store, long id)
+  public static string ReadContent(this Store store, string collection, long id)
   {
     var accessor = store.ContentData.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
-    (long contentposition, long embeddingposition, long size) item;
-    if (!store.PositionIndex.TryGetValue(id, out item)) return null;
+    if (!store.PositionIndex[collection].TryGetValue(id,
+          out (long contentposition, long embeddingposition, int dimensions, long size) item)) return null;
 
-    var contentid = accessor.ReadInt64(item.contentposition);
-    if (contentid != id) throw new InvalidConstraintException("Content ID mismatch");
+    var contentId = accessor.ReadInt64(item.contentposition);
+    if (contentId != id) throw new InvalidConstraintException("Content ID mismatch");
 
     byte[] buffer = new byte[item.size];
     accessor.ReadArray(item.contentposition + sizeof(long), buffer, 0, (int)item.size);

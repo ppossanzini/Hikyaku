@@ -74,7 +74,7 @@ public class Writer
         {
           while (_store.IngestionQueue.TryDequeue(out var entry))
           {
-            _store.AppendContent(entry.Id, entry.Content, entry.Embedding).GetAwaiter().GetResult();
+            _store.AppendContent(entry.Id, entry.CollectionName, entry.Content, entry.Embedding).GetAwaiter().GetResult();
           }
         }
       }

@@ -10,12 +10,11 @@ namespace Jigen.Extensions;
 
 public static class SimdSearchExtensions
 {
-  public static unsafe List<(VectorEntry entry, float score)> Search(this Store store, float[] queryVector, int top)
+  public static unsafe List<(VectorEntry entry, float score)> Search(this Store store, string collection, float[] queryVector, int top)
   {
     if (queryVector is null) throw new ArgumentNullException(nameof(queryVector));
     if (top <= 0) return [];
 
-    var vectorSize = store.Options.VectorSize;
     var topResults = new ConcurrentBag<(long Id, float Score)>();
 
 
@@ -26,23 +25,21 @@ public static class SimdSearchExtensions
         byte* pointer = null;
         accessor.SafeMemoryMappedViewHandle.AcquirePointer(ref pointer);
 
-        var headerOffset = 2 * sizeof(long) + sizeof(int);
-        var entrySize = sizeof(long) + sizeof(long) + (vectorSize * sizeof(float));
-        var totalBytes = (long)store.VectorStoreHeader.EmbeddingCurrentPosition;
-        var entryCount = (totalBytes - headerOffset) / entrySize;
 
-        Parallel.For(0L, entryCount, i =>
+        if (store.PositionIndex.TryGetValue(collection, out var index) == false) return [];
+
+        Parallel.ForEach(index.Values, i =>
         {
-          var offset = headerOffset + (i * entrySize);
+          var offset = i.embeddingsposition;
           var currentPtr = pointer + offset;
 
           long id = *(long*)currentPtr;
-          float* vectorBase = (float*)(currentPtr + (sizeof(long) * 2));
+          float* vectorBase = (float*)(currentPtr + sizeof(long));
 
           fixed (float* pQuery = queryVector) // Fissiamo la query in memoria
           {
             // Passiamo i puntatori al metodo SIMD
-            float similarity = DotProductSimdUnsafe(pQuery, vectorBase, vectorSize);
+            float similarity = DotProductSimdUnsafe(pQuery, vectorBase, i.dimensions);
             topResults.Add((id, similarity));
           }
         });
@@ -56,7 +53,7 @@ public static class SimdSearchExtensions
     return topResults.OrderByDescending(r => r.Score).Take(top)
       .Select(r => (new VectorEntry
       {
-        Id = r.Id, Content = store.ReadContent(r.Id)
+        Id = r.Id, Content = store.ReadContent(collection, r.Id)
       }, r.Score))
       .ToList();
   }

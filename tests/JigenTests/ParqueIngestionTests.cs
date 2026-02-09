@@ -47,8 +47,9 @@ public class ParqueIngestionTests : IDisposable
 
       for (int j = 0; j < content.Data.Length; j++)
       {
-        await _store.AppendContent(new VectorEntry()
+        await _store.AppendContent(new VectorEntry<int>()
         {
+          CollectionName = "testone",
           Id = 0,
           Content = content.Data.GetValue(j)?.ToString(),
           Embedding = ((double?[])allembeddings.Data).Skip(j * embeddingSize).Take(embeddingSize).Select(v => (float)(v ?? 0f)).ToArray()

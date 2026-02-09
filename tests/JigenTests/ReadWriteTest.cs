@@ -54,8 +54,9 @@ public class ReadWriteTest : IDisposable
 
     foreach (var s in sentences)
     {
-      var rr = await _store.AppendContent(new VectorEntry()
+      var rr = await _store.AppendContent(new VectorEntry<int>()
       {
+        CollectionName = "vicini",
         Content = s, Embedding = _embeddingGenerator.GenerateEmbedding(s), Id = 0
       });
 
@@ -71,7 +72,7 @@ public class ReadWriteTest : IDisposable
   {
     for (int i = 0; i < 12; i++)
     {
-      _testOutputHelper.WriteLine(_store.ReadContent(i + 1));
+      _testOutputHelper.WriteLine(_store.ReadContent("vicini", i + 1));
     }
 
     await _store.Close();
@@ -81,12 +82,14 @@ public class ReadWriteTest : IDisposable
   [InlineData("animali pelosi")]
   [InlineData("trofei conquistati")]
   [InlineData("viaggiare in lazio")]
+  [InlineData("carboidrati")]
+  [InlineData("La ricetta della pasta alla carbonara prevede guanciale e uova")]
   public async Task Search(string search)
   {
     var query = _embeddingGenerator.GenerateEmbedding(search);
     _testOutputHelper.WriteLine($"{String.Concat(query.Take(10).Select(i => $"{i},"))}");
 
-    var results = _store.Search(query, 5);
+    var results = _store.Search("vicini", query, 5);
 
     _testOutputHelper.WriteLine($"Hai cercato: {search}");
     foreach (var r in results)
