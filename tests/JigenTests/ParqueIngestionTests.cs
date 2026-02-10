@@ -1,3 +1,4 @@
+using System.Text;
 using Jigen;
 using Jigen.DataStructures;
 using Jigen.Extensions;
@@ -40,6 +41,7 @@ public class ParqueIngestionTests : IDisposable
     {
       using var rg = reader.OpenRowGroupReader(i);
 
+      var id = await rg.ReadColumnAsync(schema[0]);
       var content = await rg.ReadColumnAsync(schema[2]);
       var allembeddings = await rg.ReadColumnAsync(schema[3]);
 
@@ -47,11 +49,11 @@ public class ParqueIngestionTests : IDisposable
 
       for (int j = 0; j < content.Data.Length; j++)
       {
-        await _store.AppendContent(new VectorEntry<int>()
+        await _store.AppendContent(new VectorEntry()
         {
           CollectionName = "testone",
-          Id = 0,
-          Content = content.Data.GetValue(j)?.ToString(),
+          Id = Encoding.UTF8.GetBytes(id.Data.GetValue(j)?.ToString() ?? string.Empty),
+          Content = Encoding.UTF8.GetBytes(content.Data.GetValue(j)?.ToString() ?? string.Empty),
           Embedding = ((double?[])allembeddings.Data).Skip(j * embeddingSize).Take(embeddingSize).Select(v => (float)(v ?? 0f)).ToArray()
         });
       }

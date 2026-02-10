@@ -20,7 +20,7 @@ public class VectorCollection<T> : ICollection<T>
     this._dimensions = dimensions;
     this._name = name;
 
-    store.PositionIndex.Add(name, new Dictionary<long, (long contentposition, long embeddingsposition, int dimensions, long size)>());
+    store.PositionIndex.Add(name, new Dictionary<byte[], (long contentposition, long embeddingsposition, int dimensions, long size)>(ByteArrayEqualityComparer.Instance));
   }
 
   public IEnumerator<T> GetEnumerator()

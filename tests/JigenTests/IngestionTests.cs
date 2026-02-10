@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using Jigen;
 using Jigen.DataStructures;
 using Jigen.Extensions;
@@ -34,11 +35,12 @@ public class IngestionTests
     sw.Start();
 
     for (var x = 0; x < count; x++)
-      await _store.AppendContent(new VectorEntry<int>()
+      await _store.AppendContent(new VectorEntry()
       {
         CollectionName = "animals",
         Content =
-          "Animalia is an illustrated children's book by Graeme Base. It was originally published in 1986, followed by a tenth anniversary edition in 1996, and a 25th anniversary edition in 2012. Over three million copies have been sold.   A special numbered and signed anniversary edition was also published in 1996, with an embossed gold jacket.",
+          "Animalia is an illustrated children's book by Graeme Base. It was originally published in 1986, followed by a tenth anniversary edition in 1996, and a 25th anniversary edition in 2012. Over three million copies have been sold.   A special numbered and signed anniversary edition was also published in 1996, with an embossed gold jacket."u8
+            .ToArray(),
         Embedding = new[]
           {
             0.017398979514837265, -0.01408793218433857, -0.010348621755838394, -0.02228245511651039, -0.010668220929801464, 0.025388959795236588, -0.030783794820308685, -0.027204282581806183, 0.005008119158446789, -0.012988511472940445, 0.007529756985604763, 0.006433531641960144,
@@ -224,11 +226,12 @@ public class IngestionTests
     sw.Start();
 
     await Parallel.ForAsync(0, count, async (_, _) =>
-      await _store.AppendContent(new VectorEntry<int>()
+      await _store.AppendContent(new VectorEntry()
       {
         CollectionName = "animals",
         Content =
-          "Animalia is an illustrated children's book by Graeme Base. It was originally published in 1986, followed by a tenth anniversary edition in 1996, and a 25th anniversary edition in 2012. Over three million copies have been sold.   A special numbered and signed anniversary edition was also published in 1996, with an embossed gold jacket.",
+          "Animalia is an illustrated children's book by Graeme Base. It was originally published in 1986, followed by a tenth anniversary edition in 1996, and a 25th anniversary edition in 2012. Over three million copies have been sold.   A special numbered and signed anniversary edition was also published in 1996, with an embossed gold jacket."u8
+            .ToArray(),
         Embedding = new[]
           {
             0.017398979514837265, -0.01408793218433857, -0.010348621755838394, -0.02228245511651039, -0.010668220929801464, 0.025388959795236588, -0.030783794820308685, -0.027204282581806183, 0.005008119158446789, -0.012988511472940445, 0.007529756985604763, 0.006433531641960144,

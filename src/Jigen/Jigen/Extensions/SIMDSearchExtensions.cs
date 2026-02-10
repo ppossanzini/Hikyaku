@@ -15,7 +15,7 @@ public static class SimdSearchExtensions
     if (queryVector is null) throw new ArgumentNullException(nameof(queryVector));
     if (top <= 0) return [];
 
-    var topResults = new ConcurrentBag<(long Id, float Score)>();
+    var topResults = new ConcurrentBag<(byte[] Id, float Score)>();
 
 
     using (var accessor = store.EmbeddingsData.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read))
@@ -30,17 +30,36 @@ public static class SimdSearchExtensions
 
         Parallel.ForEach(index.Values, i =>
         {
-          var offset = i.embeddingsposition;
-          var currentPtr = pointer + offset;
-
-          long id = *(long*)currentPtr;
-          float* vectorBase = (float*)(currentPtr + sizeof(long));
-
-          fixed (float* pQuery = queryVector) // Fissiamo la query in memoria
+          try
           {
-            // Passiamo i puntatori al metodo SIMD
-            float similarity = DotProductSimdUnsafe(pQuery, vectorBase, i.dimensions);
-            topResults.Add((id, similarity));
+            var offset = i.embeddingsposition;
+            var currentPtr = pointer + offset;
+
+            int idsize = *(int*)currentPtr;
+
+            var id = new byte[idsize];
+            fixed (byte* idDst = id)
+            {
+              Buffer.MemoryCopy(
+                source: currentPtr + sizeof(int),
+                destination: idDst,
+                destinationSizeInBytes: idsize,
+                sourceBytesToCopy: idsize);
+            }
+
+            float* vectorBase = (float*)(currentPtr + sizeof(int) + idsize);
+
+            fixed (float* pQuery = queryVector)
+            {
+              float similarity = DotProductSimdUnsafe(pQuery, vectorBase, i.dimensions);
+              topResults.Add((id, similarity));
+            }
+          }
+          catch (Exception ex)
+          {
+            Console.WriteLine($"Error processing vector entry : {ex.Message}");
+            Console.WriteLine($"Error processing vector entry : {ex.StackTrace}");
+            throw;
           }
         });
       }

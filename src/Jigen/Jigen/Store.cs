@@ -27,8 +27,8 @@ public class Store : IStore, IDisposable
 
   internal readonly StoreOptions Options;
   internal readonly StoreHeader VectorStoreHeader = new();
-  
-  internal Dictionary<string, Dictionary<long, (long contentposition, long embeddingsposition, int dimensions, long size)>> PositionIndex { get; set; } = new();
+
+  internal Dictionary<string, Dictionary<byte[], (long contentposition, long embeddingsposition, int dimensions, long size)>> PositionIndex { get; set; } = new();
 
   internal readonly Writer Writer;
 
@@ -51,7 +51,6 @@ public class Store : IStore, IDisposable
   public Store(StoreOptions options)
   {
     this.Options = options;
-    this.VectorStoreHeader.EmbeddingSize = options.VectorSize;
     EnsureFileCreated();
 
     EnableWriting();
@@ -128,8 +127,6 @@ public class Store : IStore, IDisposable
       stream.Seek(0, SeekOrigin.Begin);
       using var writer = new BinaryWriter(stream);
 
-      writer.Write(VectorStoreHeader.TotalEntityCount);
-      writer.Write(VectorStoreHeader.EmbeddingSize);
       writer.Write(VectorStoreHeader.EmbeddingCurrentPosition = 2 * sizeof(long) + sizeof(int));
       writer.Flush();
 

@@ -29,17 +29,18 @@ public static class StoreWritingExtensions
 
   private static async Task AppendIndex(
     this Store store,
-    (long id, string collectioname, long contentposition, long embeddingposition, int dimensions, long contentsize) item)
+    (byte[] id, string collectioname, long contentposition, long embeddingposition, int dimensions, long contentsize) item)
   {
-    if(!store.PositionIndex.ContainsKey(item.collectioname))
-      store.PositionIndex[item.collectioname] = new Dictionary<long, (long, long, int, long)>();
+    if (!store.PositionIndex.ContainsKey(item.collectioname))
+      store.PositionIndex[item.collectioname] = new Dictionary<byte[], (long, long, int, long)>(ByteArrayEqualityComparer.Instance);
 
     store.PositionIndex[item.collectioname][item.id] = (item.contentposition, item.embeddingposition, item.dimensions, item.contentsize);
 
     var file = store.IndexFileStream;
 
     file.Seek(0, SeekOrigin.End);
-    WriteInt64Le(file, item.id);
+    WriteInt32Le(file, item.id.Length);
+    file.Write(item.id, 0, item.id.Length);
     var nameAsBytes = Encoding.UTF8.GetBytes(item.collectioname);
     WriteInt32Le(file, nameAsBytes.Length);
     file.Write(nameAsBytes, 0, nameAsBytes.Length);
@@ -52,33 +53,25 @@ public static class StoreWritingExtensions
   }
 
 
-  public static async Task<VectorEntry> AppendContent<T>(this Store store, VectorEntry<T> entry)
+  public static async Task<VectorEntry> AppendContent(this Store store, VectorEntry entry)
   {
-    entry.Id = Interlocked.Increment(ref store.VectorStoreHeader.TotalEntityCount);
     await store.IngestionQueue.EnqueueAsync(entry);
     store.Writer.SignalNewData();
     return entry;
   }
 
-  // internal static async Task<(long id, long position, long embeddingPosition, long size)>
-  //   AppendContent(this Store store, long id, string content, float[] embeddings)
-  // {
-  //   return await store.AppendContent(id, content, store.Options.QuantizationFunction(embeddings));
-  // }
-
-  internal static async Task<(long id, long position, long embeddingPosition, long size)>
-    AppendContent(this Store store, long id, string collection, string content, float[] embeddings)
+  internal static async Task<(byte[] id, long position, long embeddingPosition, long size)>
+    AppendContent(this Store store, byte[] id, string collection, byte[] content, float[] embeddings)
   {
     var contentStream = store.ContentFileStream;
 
     contentStream.Seek(0, SeekOrigin.End);
     var currentPosition = contentStream.Position;
 
-    // Write content: id + utf8 bytes (size is tracked in index)
-    WriteInt64Le(contentStream, id);
-    var buffer = Encoding.UTF8.GetBytes(content);
-    await contentStream.WriteAsync(buffer, 0, buffer.Length);
-    long size = buffer.Length;
+    WriteInt32Le(contentStream, id.Length);
+    await contentStream.WriteAsync(id, 0, id.Length);
+    WriteInt32Le(contentStream, content.Length);
+    await contentStream.WriteAsync(content, 0, content.Length);
 
     store.VectorStoreHeader.ContentCurrentPosition = contentStream.Position;
 
@@ -86,12 +79,13 @@ public static class StoreWritingExtensions
     embeddingsStream.Seek(0, SeekOrigin.End);
     var embeddingPosition = embeddingsStream.Position;
 
-    WriteInt64Le(embeddingsStream, id);
+    WriteInt32Le(embeddingsStream, id.Length);
+    await embeddingsStream.WriteAsync(id, 0, id.Length);
     WriteByteArray(embeddingsStream, embeddings);
 
     store.VectorStoreHeader.EmbeddingCurrentPosition = embeddingsStream.Position;
 
-    await store.AppendIndex((id, collection, currentPosition, embeddingPosition, embeddings.Length, size));
-    return (id, currentPosition, embeddingPosition, size);
+    await store.AppendIndex((id, collection, currentPosition, embeddingPosition, embeddings.Length, content.Length));
+    return (id, currentPosition, embeddingPosition, content.Length);
   }
 }
