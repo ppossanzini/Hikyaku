@@ -4,28 +4,40 @@ using Jigen.Extensions;
 
 namespace Jigen;
 
-public class VectorCollection<T> : ICollection<T>
-  where T : VectorEntry<T>, new()
+public class VectorCollection<T> :
+  ICollection<VectorEntry<T>>
+  where T : class, new()
 {
   private readonly Store _store;
   private readonly int _dimensions;
   private readonly string _name;
 
-  public VectorCollection(Store store, int dimensions = 1536, string name = nameof(VectorCollection<T>))
+  private readonly VectorCollectionOptions<T> options;
+
+  public VectorCollection(Store store, VectorCollectionOptions<T> options)
   {
-    if (string.IsNullOrEmpty(name)) throw new ArgumentException("Collection name cannot be null or empty", nameof(name));
-    if (name.Length > 256) throw new ArgumentException("Collection name cannot be longer than 256 characters", nameof(name));
+    if (string.IsNullOrEmpty(options.Name)) throw new ArgumentException("Collection name cannot be null or empty", nameof(options.Name));
+    if (options.Name.Length > 256) throw new ArgumentException("Collection name cannot be longer than 256 characters", nameof(options.Name));
+
+    this.options = options;
 
     this._store = store ?? throw new ArgumentNullException(nameof(store));
-    this._dimensions = dimensions;
-    this._name = name;
+    this._dimensions = options.Dimensions;
+    this._name = options.Name;
 
-    store.PositionIndex.Add(name, new Dictionary<byte[], (long contentposition, long embeddingsposition, int dimensions, long size)>(ByteArrayEqualityComparer.Instance));
+    store.PositionIndex.Add(_name, new Dictionary<byte[], (long contentposition, long embeddingsposition, int dimensions, long size)>(ByteArrayEqualityComparer.Instance));
   }
 
-  public IEnumerator<T> GetEnumerator()
+  public IEnumerator<VectorEntry<T>> GetEnumerator()
   {
-    throw new NotImplementedException();
+    foreach (var K in _store.PositionIndex[_name].Keys)
+      yield return new VectorEntry<T>()
+      {
+        Key = K,
+        Content = options.Deserialize(_store.ReadContent(_name, K))
+      };
+
+    yield break;
   }
 
   IEnumerator IEnumerable.GetEnumerator()
@@ -33,13 +45,18 @@ public class VectorCollection<T> : ICollection<T>
     return GetEnumerator();
   }
 
-  public void Add(T item)
+  public void Add(VectorEntry<T> item)
   {
     if (item == null) return;
     if (_dimensions != item.Embedding.Length) throw new InvalidOperationException($"Dimensions mismatch: expected {_dimensions}, got {item.Embedding.Length}");
 
-    item.CollectionName = _name;
-    _store.AppendContent(item).GetAwaiter().GetResult();
+    _store.AppendContent(new VectorEntry()
+    {
+      Id = item.Key.Key,
+      CollectionName = this._name,
+      Content = options.Serialize(item.Content),
+      Embedding = item.Embedding
+    }).GetAwaiter().GetResult();
   }
 
   public void Clear()
@@ -48,24 +65,24 @@ public class VectorCollection<T> : ICollection<T>
       positionIndex.Clear();
   }
 
-  public bool Contains(T item)
+  public bool Contains(VectorEntry<T> item)
   {
     if (item == null) return false;
 
     if (_store.PositionIndex.TryGetValue(_name, out var positionIndex))
-      return positionIndex.ContainsKey(item.Id);
+      return positionIndex.ContainsKey(item.Key.Key);
     return false;
   }
 
-  public void CopyTo(T[] array, int arrayIndex)
+  public void CopyTo(VectorEntry<T>[] array, int arrayIndex)
   {
     throw new NotImplementedException();
   }
 
-  public bool Remove(T item)
+  public bool Remove(VectorEntry<T> item)
   {
     if (item == null) return false;
-    return _store.PositionIndex.TryGetValue(_name, out var positionIndex) && positionIndex.Remove(item.Id);
+    return _store.PositionIndex.TryGetValue(_name, out var positionIndex) && positionIndex.Remove(item.Key.Key);
   }
 
   public int Count => _store.PositionIndex.TryGetValue(_name, out var index) ? index.Count : 0;

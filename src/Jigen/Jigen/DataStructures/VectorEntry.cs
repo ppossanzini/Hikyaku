@@ -53,6 +53,11 @@ public struct VectorKey
     return new VectorKey { Key = Encoding.UTF8.GetBytes(value) };
   }
 
+  public static implicit operator VectorKey(byte[] value)
+  {
+    return new VectorKey { Key = value };
+  }
+
   public static implicit operator Span<byte>(VectorKey item)
   {
     return (Span<byte>)item.Key;
