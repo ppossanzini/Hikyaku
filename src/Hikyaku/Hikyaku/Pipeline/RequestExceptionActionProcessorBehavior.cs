@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 /// </summary>
 /// <typeparam name="TRequest">Request type</typeparam>
 /// <typeparam name="TResponse">Response type</typeparam>
-public class RequestExceptionActionProcessorBehavior<TRequest, TResponse> : MediatR.IPipelineBehavior<TRequest, TResponse>
+public class RequestExceptionActionProcessorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     private readonly IServiceProvider _serviceProvider;
@@ -35,7 +35,7 @@ public class RequestExceptionActionProcessorBehavior<TRequest, TResponse> : Medi
     /// <param name="next">The delegate representing the next step in the pipeline.</param>
     /// <param name="cancellationToken">Token to propagate notification that the operation should be canceled.</param>
     /// <returns>The response resulting from executing the pipeline behaviors and the request handler.</returns>
-    public async Task<TResponse> Handle(TRequest request, MediatR.RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         try
         {

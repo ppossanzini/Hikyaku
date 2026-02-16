@@ -88,13 +88,13 @@ public class RequestHandlerWrapperImpl<TRequest, TResponse> : RequestHandlerWrap
     CancellationToken cancellationToken)
   {
     Task<TResponse> Handler(CancellationToken t = default) =>
-      (serviceProvider.GetService<MediatR.IRequestHandler<TRequest, TResponse>>() ??
+      (serviceProvider.GetService<IRequestHandler<TRequest, TResponse>>() ??
        serviceProvider.GetRequiredService<IRequestHandler<TRequest, TResponse>>())
       .Handle((TRequest)request, t == default ? cancellationToken : t);
 
     return serviceProvider.GetServices<IPipelineBehavior<TRequest, TResponse>>()
       .Reverse()
-      .Aggregate((MediatR.RequestHandlerDelegate<TResponse>)Handler,
+      .Aggregate((RequestHandlerDelegate<TResponse>)Handler,
         (next, pipeline) => (t) => pipeline.Handle((TRequest)request, next, t == default ? cancellationToken : t))();
   }
 }
@@ -130,7 +130,7 @@ public class RequestHandlerWrapperImpl<TRequest> : RequestHandlerWrapper
   {
     async Task<Unit> Handler(CancellationToken t = default)
     {
-      await (serviceProvider.GetService<MediatR.IRequestHandler<TRequest>>() ??
+      await (serviceProvider.GetService<IRequestHandler<TRequest>>() ??
              serviceProvider.GetRequiredService<IRequestHandler<TRequest>>())
         .Handle((TRequest)request, t == default ? cancellationToken : t);
 
@@ -139,7 +139,7 @@ public class RequestHandlerWrapperImpl<TRequest> : RequestHandlerWrapper
 
     return serviceProvider.GetServices<IPipelineBehavior<TRequest, MediatR.Unit>>()
       .Reverse()
-      .Aggregate((MediatR.RequestHandlerDelegate<MediatR.Unit>)Handler,
+      .Aggregate((RequestHandlerDelegate<MediatR.Unit>)Handler,
         (next, pipeline) => (t) => pipeline.Handle((TRequest)request, next, t == default ? cancellationToken : t))();
   }
 }

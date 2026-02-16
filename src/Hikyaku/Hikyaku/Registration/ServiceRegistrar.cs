@@ -117,10 +117,10 @@ public static class ServiceRegistrar
   {
     var assembliesToScan = configuration.AssembliesToRegister.Distinct().ToArray();
 
-    ConnectImplementationsToTypesClosing(typeof(MediatR.IRequestHandler<,>), services, assembliesToScan, false, configuration, cancellationToken);
-    ConnectImplementationsToTypesClosing(typeof(MediatR.IRequestHandler<>), services, assembliesToScan, false, configuration, cancellationToken);
-    ConnectImplementationsToTypesClosing(typeof(MediatR.INotificationHandler<>), services, assembliesToScan, true, configuration, cancellationToken);
-    ConnectImplementationsToTypesClosing(typeof(MediatR.IStreamRequestHandler<,>), services, assembliesToScan, false, configuration, cancellationToken);
+    ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>), services, assembliesToScan, false, configuration, cancellationToken);
+    ConnectImplementationsToTypesClosing(typeof(IRequestHandler<>), services, assembliesToScan, false, configuration, cancellationToken);
+    ConnectImplementationsToTypesClosing(typeof(INotificationHandler<>), services, assembliesToScan, true, configuration, cancellationToken);
+    ConnectImplementationsToTypesClosing(typeof(IStreamRequestHandler<,>), services, assembliesToScan, false, configuration, cancellationToken);
     ConnectImplementationsToTypesClosing(typeof(IRequestExceptionHandler<,,>), services, assembliesToScan, true, configuration, cancellationToken);
     ConnectImplementationsToTypesClosing(typeof(IRequestExceptionAction<,>), services, assembliesToScan, true, configuration, cancellationToken);
 
@@ -132,7 +132,7 @@ public static class ServiceRegistrar
 
     var multiOpenInterfaces = new List<Type>
     {
-      typeof(MediatR.INotificationHandler<>),
+      typeof(INotificationHandler<>),
       typeof(IRequestExceptionHandler<,,>),
       typeof(IRequestExceptionAction<,>)
     };
@@ -501,15 +501,15 @@ public static class ServiceRegistrar
   {
     // Use TryAdd, so any existing ServiceFactory/IOrchestrator registration doesn't get overridden
     services.TryAdd(new ServiceDescriptor(typeof(IHikyaku), serviceConfiguration.OrchestratorImplementationType, serviceConfiguration.Lifetime));
-    services.TryAdd(new ServiceDescriptor(typeof(MediatR.IMediator), serviceConfiguration.OrchestratorImplementationType, serviceConfiguration.Lifetime));
-    services.TryAdd(new ServiceDescriptor(typeof(MediatR.ISender), sp => sp.GetRequiredService<IHikyaku>(), serviceConfiguration.Lifetime));
-    services.TryAdd(new ServiceDescriptor(typeof(MediatR.IPublisher), sp => sp.GetRequiredService<IHikyaku>(), serviceConfiguration.Lifetime));
+    // services.TryAdd(new ServiceDescriptor(typeof(IMediator), serviceConfiguration.OrchestratorImplementationType, serviceConfiguration.Lifetime));
+    services.TryAdd(new ServiceDescriptor(typeof(ISender), sp => sp.GetRequiredService<IHikyaku>(), serviceConfiguration.Lifetime));
+    services.TryAdd(new ServiceDescriptor(typeof(IPublisher), sp => sp.GetRequiredService<IHikyaku>(), serviceConfiguration.Lifetime));
     services.TryAdd(new ServiceDescriptor(typeof(ISender), sp => sp.GetRequiredService<IHikyaku>(), serviceConfiguration.Lifetime));
     services.TryAdd(new ServiceDescriptor(typeof(IPublisher), sp => sp.GetRequiredService<IHikyaku>(), serviceConfiguration.Lifetime));
     
     var notificationPublisherServiceDescriptor = serviceConfiguration.NotificationPublisherType != null
-      ? new ServiceDescriptor(typeof(MediatR.INotificationPublisher), serviceConfiguration.NotificationPublisherType, serviceConfiguration.Lifetime)
-      : new ServiceDescriptor(typeof(MediatR.INotificationPublisher), serviceConfiguration.NotificationPublisher);
+      ? new ServiceDescriptor(typeof(INotificationPublisher), serviceConfiguration.NotificationPublisherType, serviceConfiguration.Lifetime)
+      : new ServiceDescriptor(typeof(INotificationPublisher), serviceConfiguration.NotificationPublisher);
 
     services.TryAdd(notificationPublisherServiceDescriptor);
 
@@ -527,13 +527,13 @@ public static class ServiceRegistrar
 
     if (serviceConfiguration.RequestPreProcessorsToRegister.Any())
     {
-      services.TryAddEnumerable(new ServiceDescriptor(typeof(MediatR.IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>), ServiceLifetime.Transient));
+      services.TryAddEnumerable(new ServiceDescriptor(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>), ServiceLifetime.Transient));
       services.TryAddEnumerable(serviceConfiguration.RequestPreProcessorsToRegister);
     }
 
     if (serviceConfiguration.RequestPostProcessorsToRegister.Any())
     {
-      services.TryAddEnumerable(new ServiceDescriptor(typeof(MediatR.IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>), ServiceLifetime.Transient));
+      services.TryAddEnumerable(new ServiceDescriptor(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>), ServiceLifetime.Transient));
       services.TryAddEnumerable(serviceConfiguration.RequestPostProcessorsToRegister);
     }
 
@@ -561,7 +561,7 @@ public static class ServiceRegistrar
 
     if (hasAnyRegistrationsOfSubBehaviorType)
     {
-      services.TryAddEnumerable(new ServiceDescriptor(typeof(MediatR.IPipelineBehavior<,>), behaviorType, ServiceLifetime.Transient));
+      services.TryAddEnumerable(new ServiceDescriptor(typeof(IPipelineBehavior<,>), behaviorType, ServiceLifetime.Transient));
     }
   }
 }

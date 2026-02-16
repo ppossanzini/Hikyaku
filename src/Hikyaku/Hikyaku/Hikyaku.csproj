@@ -42,5 +42,21 @@
       <Link>Logo-128.png</Link>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="MediatorIntegrations\IMediator.cs" />
+    <Compile Remove="MediatorIntegrations\INotificationHandler.cs" />
+    <Compile Remove="MediatorIntegrations\INotificationPublisher.cs" />
+    <Compile Remove="MediatorIntegrations\IPipelineBehavior.cs" />
+    <Compile Remove="MediatorIntegrations\IPublisher.cs" />
+    <Compile Remove="MediatorIntegrations\IRequestHandler.cs" />
+    <Compile Remove="MediatorIntegrations\ISender.cs" />
+    <Compile Remove="MediatorIntegrations\IStreamPipelineBehavior.cs" />
+    <Compile Remove="MediatorIntegrations\IStreamRequestHandler.cs" />
+    <Compile Remove="MediatorIntegrations\NotificationHandlerExecutor.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MediatorIntegrations\" />
+  </ItemGroup>
+
   
 </Project>

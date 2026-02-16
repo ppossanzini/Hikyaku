@@ -169,11 +169,11 @@ public class HikyakuServiceConfiguration
     /// <returns>This</returns>
     public HikyakuServiceConfiguration AddBehavior(Type implementationType, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
     {
-        var implementedGenericInterfaces = implementationType.FindInterfacesThatClose(typeof(MediatR.IPipelineBehavior<,>)).ToList();
+        var implementedGenericInterfaces = implementationType.FindInterfacesThatClose(typeof(IPipelineBehavior<,>)).ToList();
 
         if (implementedGenericInterfaces.Count == 0)
         {
-            throw new InvalidOperationException($"{implementationType.Name} must implement {typeof(MediatR.IPipelineBehavior<,>).FullName}");
+            throw new InvalidOperationException($"{implementationType.Name} must implement {typeof(IPipelineBehavior<,>).FullName}");
         }
 
         foreach (var implementedBehaviorType in implementedGenericInterfaces)
@@ -212,11 +212,11 @@ public class HikyakuServiceConfiguration
         }
 
         var implementedGenericInterfaces = openBehaviorType.GetInterfaces().Where(i => i.IsGenericType).Select(i => i.GetGenericTypeDefinition());
-        var implementedOpenBehaviorInterfaces = new HashSet<Type>(implementedGenericInterfaces.Where(i => i == typeof(MediatR.IPipelineBehavior<,>)));
+        var implementedOpenBehaviorInterfaces = new HashSet<Type>(implementedGenericInterfaces.Where(i => i == typeof(IPipelineBehavior<,>)));
 
         if (implementedOpenBehaviorInterfaces.Count == 0)
         {
-            throw new InvalidOperationException($"{openBehaviorType.Name} must implement {typeof(MediatR.IPipelineBehavior<,>).FullName}");
+            throw new InvalidOperationException($"{openBehaviorType.Name} must implement {typeof(IPipelineBehavior<,>).FullName}");
         }
 
         foreach (var openBehaviorInterface in implementedOpenBehaviorInterfaces)
@@ -299,11 +299,11 @@ public class HikyakuServiceConfiguration
     /// <returns>This</returns>
     public HikyakuServiceConfiguration AddStreamBehavior(Type implementationType, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
     {
-        var implementedGenericInterfaces = implementationType.FindInterfacesThatClose(typeof(MediatR.IStreamPipelineBehavior<,>)).ToList();
+        var implementedGenericInterfaces = implementationType.FindInterfacesThatClose(typeof(IStreamPipelineBehavior<,>)).ToList();
 
         if (implementedGenericInterfaces.Count == 0)
         {
-            throw new InvalidOperationException($"{implementationType.Name} must implement {typeof(MediatR.IStreamPipelineBehavior<,>).FullName}");
+            throw new InvalidOperationException($"{implementationType.Name} must implement {typeof(IStreamPipelineBehavior<,>).FullName}");
         }
 
         foreach (var implementedBehaviorType in implementedGenericInterfaces)
@@ -328,11 +328,11 @@ public class HikyakuServiceConfiguration
         }
 
         var implementedGenericInterfaces = openBehaviorType.GetInterfaces().Where(i => i.IsGenericType).Select(i => i.GetGenericTypeDefinition());
-        var implementedOpenBehaviorInterfaces = new HashSet<Type>(implementedGenericInterfaces.Where(i => i == typeof(MediatR.IStreamPipelineBehavior<,>)));
+        var implementedOpenBehaviorInterfaces = new HashSet<Type>(implementedGenericInterfaces.Where(i => i == typeof(IStreamPipelineBehavior<,>)));
 
         if (implementedOpenBehaviorInterfaces.Count == 0)
         {
-            throw new InvalidOperationException($"{openBehaviorType.Name} must implement {typeof(MediatR.IStreamPipelineBehavior<,>).FullName}");
+            throw new InvalidOperationException($"{openBehaviorType.Name} must implement {typeof(IStreamPipelineBehavior<,>).FullName}");
         }
 
         foreach (var openBehaviorInterface in implementedOpenBehaviorInterfaces)

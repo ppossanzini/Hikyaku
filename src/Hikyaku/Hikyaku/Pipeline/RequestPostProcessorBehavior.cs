@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 /// </summary>
 /// <typeparam name="TRequest">Request type</typeparam>
 /// <typeparam name="TResponse">Response type</typeparam>
-public class RequestPostProcessorBehavior<TRequest, TResponse> : MediatR.IPipelineBehavior<TRequest, TResponse>
+public class RequestPostProcessorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     private readonly IEnumerable<IRequestPostProcessor<TRequest, TResponse>> _postProcessors;
@@ -32,7 +32,7 @@ public class RequestPostProcessorBehavior<TRequest, TResponse> : MediatR.IPipeli
     /// <param name="next">The delegate to call the next behavior or handler in the pipeline.</param>
     /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
     /// <returns>The processed response of type <typeparamref name="TResponse"/>.</returns>
-    public async Task<TResponse> Handle(TRequest request, MediatR.RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var response = await next(cancellationToken).ConfigureAwait(false);
 

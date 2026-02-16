@@ -43,7 +43,7 @@ public class OpenBehavior
         if (openBehaviorType == null) throw new ArgumentNullException($"Open behavior type can not be null.");
 
         bool isPipelineBehavior = openBehaviorType.GetInterfaces()
-            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(MediatR.IPipelineBehavior<,>));
+            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPipelineBehavior<,>));
 
         if (!isPipelineBehavior)
         {

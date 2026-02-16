@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 /// </summary>
 /// <typeparam name="TRequest"></typeparam>
 /// <typeparam name="TResponse"></typeparam>
-public class RequestPreProcessorBehavior<TRequest, TResponse> : MediatR.IPipelineBehavior<TRequest, TResponse>
+public class RequestPreProcessorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     private readonly IEnumerable<IRequestPreProcessor<TRequest>> _preProcessors;
@@ -30,7 +30,7 @@ public class RequestPreProcessorBehavior<TRequest, TResponse> : MediatR.IPipelin
     /// <param name="next">The delegate representing the next action in the pipeline.</param>
     /// <param name="cancellationToken">A token used to propagate notification that operations should be canceled.</param>
     /// <returns>The response resulting from processing the request.</returns>
-    public async Task<TResponse> Handle(TRequest request, MediatR.RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         foreach (var processor in _preProcessors)
         {

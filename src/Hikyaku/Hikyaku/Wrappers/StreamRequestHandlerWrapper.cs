@@ -41,12 +41,12 @@ internal class StreamRequestHandlerWrapperImpl<TRequest, TResponse>
     [EnumeratorCancellation] CancellationToken cancellationToken)
   {
     IAsyncEnumerable<TResponse> Handler() =>
-      (serviceProvider.GetService<MediatR.IStreamRequestHandler<TRequest, TResponse>>() ??
+      (serviceProvider.GetService<IStreamRequestHandler<TRequest, TResponse>>() ??
        serviceProvider.GetRequiredService<IStreamRequestHandler<TRequest, TResponse>>())
       .Handle((TRequest)request, cancellationToken);
 
     var items =
-      serviceProvider.GetServices<MediatR.IStreamPipelineBehavior<TRequest, TResponse>>()
+      serviceProvider.GetServices<IStreamPipelineBehavior<TRequest, TResponse>>()
         .Concat(serviceProvider.GetServices<IStreamPipelineBehavior<TRequest, TResponse>>())
         .Reverse()
         .Aggregate(
