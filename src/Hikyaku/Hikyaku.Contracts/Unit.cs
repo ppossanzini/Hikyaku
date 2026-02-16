@@ -1,7 +1,7 @@
-namespace MediatR;
-
 using System;
 using System.Threading.Tasks;
+
+namespace Hikyaku;
 
 /// <summary>
 /// Represents a void type, since <see cref="System.Void"/> is not a valid return type in C#.

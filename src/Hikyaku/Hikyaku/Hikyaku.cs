@@ -176,7 +176,7 @@ public class Hikyaku : IHikyaku
   /// <returns>A task that represents the asynchronous publish operation.</returns>
   /// <exception cref="ArgumentNullException">Thrown when the notification is null.</exception>
   public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
-    where TNotification : MediatR.INotification
+    where TNotification : INotification
   {
     if (notification == null)
     {
@@ -198,7 +198,7 @@ public class Hikyaku : IHikyaku
     notification switch
     {
       null => throw new ArgumentNullException(nameof(notification)),
-      MediatR.INotification instance => PublishNotification(instance, cancellationToken),
+      INotification instance => PublishNotification(instance, cancellationToken),
       _ => throw new ArgumentException($"{nameof(notification)} does not implement ${nameof(INotification)}")
     };
 
@@ -292,7 +292,7 @@ public class Hikyaku : IHikyaku
     {
       var requestInterfaceType = requestType.GetInterfaces()
         .FirstOrDefault(static i =>
-          i.IsGenericType && i.GetGenericTypeDefinition() == typeof(MediatR.IStreamRequest<>));
+          i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IStreamRequest<>));
       if (requestInterfaceType is null)
       {
         throw new ArgumentException($"{requestType.Name} does not implement IStreamRequest<TResponse>",

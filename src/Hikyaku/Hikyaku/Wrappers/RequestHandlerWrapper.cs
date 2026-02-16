@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hikyaku.Wrappers;
@@ -52,7 +51,7 @@ public abstract class RequestHandlerWrapper : RequestHandlerBase
   /// <param name="serviceProvider">The service provider used to resolve dependencies required during request handling.</param>
   /// <param name="cancellationToken">A token to observe cancellation requests.</param>
   /// <returns>A task that represents the asynchronous operation. The task result contains an instance of Unit, indicating the completion of the handling process.</returns>
-  public abstract Task<MediatR.Unit> Handle(IRequest request, IServiceProvider serviceProvider,
+  public abstract Task<Unit> Handle(IRequest request, IServiceProvider serviceProvider,
     CancellationToken cancellationToken);
 }
 
@@ -63,7 +62,7 @@ public abstract class RequestHandlerWrapper : RequestHandlerBase
 /// <typeparam name="TRequest">The type of the request handled by this wrapper.</typeparam>
 /// <typeparam name="TResponse">The type of the response produced by this wrapper.</typeparam>
 public class RequestHandlerWrapperImpl<TRequest, TResponse> : RequestHandlerWrapper<TResponse>
-  where TRequest : MediatR.IRequest<TResponse>
+  where TRequest : IRequest<TResponse>
 {
   /// <summary>
   /// Handles a request by delegating it to the appropriate service and processing any attached pipeline behaviors.
@@ -104,7 +103,7 @@ public class RequestHandlerWrapperImpl<TRequest, TResponse> : RequestHandlerWrap
 /// for processing requests without defined response types.
 /// </summary>
 public class RequestHandlerWrapperImpl<TRequest> : RequestHandlerWrapper
-  where TRequest : MediatR.IRequest
+  where TRequest : IRequest
 {
   /// <summary>
   /// Handles a request by invoking the appropriate handler logic with the provided request and service dependencies.
@@ -115,7 +114,7 @@ public class RequestHandlerWrapperImpl<TRequest> : RequestHandlerWrapper
   /// <returns>A task that represents the asynchronous operation. The task result contains the response object, or null if no result is produced.</returns>
   public override async Task<object?> Handle(object request, IServiceProvider serviceProvider,
     CancellationToken cancellationToken) =>
-    await Handle((MediatR.IRequest)request, serviceProvider, cancellationToken).ConfigureAwait(false);
+    await Handle((IRequest)request, serviceProvider, cancellationToken).ConfigureAwait(false);
 
   /// <summary>
   /// Handles a request by executing the configured request handling process
@@ -125,7 +124,7 @@ public class RequestHandlerWrapperImpl<TRequest> : RequestHandlerWrapper
   /// <param name="serviceProvider">The service provider used to resolve dependencies such as the handler and pipeline behaviors.</param>
   /// <param name="cancellationToken">A token to observe cancellation requests during the handling process.</param>
   /// <returns>A task that represents the asynchronous operation. The task result is a unit indicating successful completion of the process.</returns>
-  public override Task<MediatR.Unit> Handle(IRequest request, IServiceProvider serviceProvider,
+  public override Task<Unit> Handle(IRequest request, IServiceProvider serviceProvider,
     CancellationToken cancellationToken)
   {
     async Task<Unit> Handler(CancellationToken t = default)
@@ -137,9 +136,9 @@ public class RequestHandlerWrapperImpl<TRequest> : RequestHandlerWrapper
       return Unit.Value;
     }
 
-    return serviceProvider.GetServices<IPipelineBehavior<TRequest, MediatR.Unit>>()
+    return serviceProvider.GetServices<IPipelineBehavior<TRequest, Unit>>()
       .Reverse()
-      .Aggregate((RequestHandlerDelegate<MediatR.Unit>)Handler,
+      .Aggregate((RequestHandlerDelegate<Unit>)Handler,
         (next, pipeline) => (t) => pipeline.Handle((TRequest)request, next, t == default ? cancellationToken : t))();
   }
 }

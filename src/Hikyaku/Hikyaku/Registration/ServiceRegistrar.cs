@@ -283,7 +283,7 @@ public static class ServiceRegistrar
     var closingTypes = concreteGenericTRequest.GetGenericArguments();
 
     var concreteTResponse = concreteGenericTRequest.GetInterfaces()
-      .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(MediatR.IRequest<>))
+      .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>))
       ?.GetGenericArguments()
       .FirstOrDefault();
 

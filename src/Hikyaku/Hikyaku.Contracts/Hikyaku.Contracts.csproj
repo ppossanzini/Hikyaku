@@ -33,5 +33,12 @@
       <PackagePath></PackagePath>
       <Link>Logo-128.png</Link>
     </None>
+    <None Remove="MediatorIntegrations\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="MediatorIntegrations\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="MediatorIntegrations\**" />
   </ItemGroup>
 </Project>
