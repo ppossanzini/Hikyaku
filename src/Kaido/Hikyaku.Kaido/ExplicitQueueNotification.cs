@@ -4,8 +4,8 @@ using System;
 namespace Hikyaku.Kaido
 {
   [Obsolete("Use IRouteTo interface instead", true)]
-  public class ExplicitQueueNotification<T> : IExplicitQueue, MediatR.INotification
-    where T : MediatR.INotification
+  public class ExplicitQueueNotification<T> : IExplicitQueue, INotification
+    where T : INotification
   {
     public T Message { get; set; }
     public string QueueName { get; set; }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
+using Hikyaku;
 using Hikyaku.Kaido;
 using Microsoft.Extensions.Logging;
 using Hikyaku.Kaido.Kafka;
@@ -43,7 +44,7 @@ namespace Microsoft.Extensions.DependencyInjection
       var types = (
         from a in assemblySelect()
         from t in a.GetTypes()
-        where typeof(MediatR.IBaseRequest).IsAssignableFrom(t)
+        where typeof(IBaseRequest).IsAssignableFrom(t)
         select t).AsEnumerable();
 
       foreach (var t in types)
@@ -55,7 +56,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static MessageDispatcherOptions DispatchOnlyTo(this MessageDispatcherOptions options,
       Func<IEnumerable<Type>> typesSelect)
     {
-      foreach (var type in typesSelect().Where(t => typeof(MediatR.IBaseRequest).IsAssignableFrom(t)))
+      foreach (var type in typesSelect().Where(t => typeof(IBaseRequest).IsAssignableFrom(t)))
         options.DispatchOnly.Add(type);
 
       return options;
@@ -64,7 +65,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static MessageDispatcherOptions DenyDispatchTo(this MessageDispatcherOptions options,
       Func<IEnumerable<Type>> typesSelect)
     {
-      foreach (var type in typesSelect().Where(t => typeof(MediatR.IBaseRequest).IsAssignableFrom(t)))
+      foreach (var type in typesSelect().Where(t => typeof(IBaseRequest).IsAssignableFrom(t)))
         options.DispatchOnly.Add(type);
 
       return options;
@@ -76,7 +77,7 @@ namespace Microsoft.Extensions.DependencyInjection
       var types = (
         from a in assemblySelect()
         from t in a.GetTypes()
-        where typeof(MediatR.IBaseRequest).IsAssignableFrom(t)
+        where typeof(IBaseRequest).IsAssignableFrom(t)
         select t).AsEnumerable();
 
       foreach (var t in types)

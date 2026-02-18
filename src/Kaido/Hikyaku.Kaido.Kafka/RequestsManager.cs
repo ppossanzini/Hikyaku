@@ -193,7 +193,7 @@ namespace Hikyaku.Kaido.Kafka
             {
               Exception = ex,
               OriginaStackTrace = ex.StackTrace?.ToString(),
-              Status = StatusEnum.Exception, Content = MediatR.Unit.Value
+              Status = StatusEnum.Exception, Content = Unit.Value
             },
             CorrelationId = message.CorrelationId
           }

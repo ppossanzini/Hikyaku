@@ -279,7 +279,7 @@ namespace Hikyaku.Kaido.RabbitMQ
           {
             Exception = ex,
             OriginaStackTrace = ex.StackTrace?.ToString(),
-            Status = StatusEnum.Exception, Content = MediatR.Unit.Value
+            Status = StatusEnum.Exception, Content = Unit.Value
           },
           _options.SerializerSettings);
         _logger.LogError(ex, $"Error executing message of type {typeof(T)} from external service");

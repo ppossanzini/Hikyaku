@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Hikyaku.Kaido.GRPC;
 using Grpc.AspNetCore.Server;
+using Hikyaku;
 using Hikyaku.Kaido;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -34,7 +35,7 @@ namespace Microsoft.Extensions.DependencyInjection
       var types = (
         from a in assemblySelect()
         from t in a.GetTypes()
-        where typeof(MediatR.IBaseRequest).IsAssignableFrom(t)
+        where typeof(IBaseRequest).IsAssignableFrom(t)
         select t).AsEnumerable();
 
       foreach (var t in types)
@@ -46,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static MessageDispatcherOptions DispatchOnly(this MessageDispatcherOptions options,
       Func<IEnumerable<Type>> typesSelect)
     {
-      foreach (var type in typesSelect().Where(t => typeof(MediatR.IBaseRequest).IsAssignableFrom(t)))
+      foreach (var type in typesSelect().Where(t => typeof(IBaseRequest).IsAssignableFrom(t)))
         options.DispatchOnly.Add(type);
 
       return options;
@@ -55,7 +56,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static MessageDispatcherOptions DenyDispatch(this MessageDispatcherOptions options,
       Func<IEnumerable<Type>> typesSelect)
     {
-      foreach (var type in typesSelect().Where(t => typeof(MediatR.IBaseRequest).IsAssignableFrom(t)))
+      foreach (var type in typesSelect().Where(t => typeof(IBaseRequest).IsAssignableFrom(t)))
         options.DispatchOnly.Add(type);
 
       return options;
@@ -67,7 +68,7 @@ namespace Microsoft.Extensions.DependencyInjection
       var types = (
         from a in assemblySelect()
         from t in a.GetTypes()
-        where typeof(MediatR.IBaseRequest).IsAssignableFrom(t)
+        where typeof(IBaseRequest).IsAssignableFrom(t)
         select t).AsEnumerable();
 
       foreach (var t in types)
@@ -83,7 +84,7 @@ namespace Microsoft.Extensions.DependencyInjection
       var types = (
         from a in assemblySelect()
         from t in a.GetTypes()
-        where typeof(MediatR.IBaseRequest).IsAssignableFrom(t)
+        where typeof(IBaseRequest).IsAssignableFrom(t)
         select t).AsEnumerable();
 
       foreach (var t in types)
@@ -95,7 +96,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static RequestsManagerOptions AcceptedMessages(this RequestsManagerOptions options,
       Func<IEnumerable<Type>> typesSelect)
     {
-      foreach (var type in typesSelect().Where(t => typeof(MediatR.IBaseRequest).IsAssignableFrom(t)))
+      foreach (var type in typesSelect().Where(t => typeof(IBaseRequest).IsAssignableFrom(t)))
         options.AcceptMessageTypes.Add(type);
 
       return options;

@@ -1,14 +1,14 @@
-﻿using System.Runtime.CompilerServices;
-using Hikyaku;
-
-
-[assembly: TypeForwardedTo(typeof(MediatR.IBaseRequest))]
-[assembly: TypeForwardedTo(typeof(MediatR.IRequest<>))]
-[assembly: TypeForwardedTo(typeof(MediatR.IRequest))]
-[assembly: TypeForwardedTo(typeof(MediatR.INotification))]
-[assembly: TypeForwardedTo(typeof(MediatR.Unit))]
-[assembly: TypeForwardedTo(typeof(MediatR.IMediator))]
-[assembly: TypeForwardedTo(typeof(MediatR.IPipelineBehavior<,>))]
-[assembly: TypeForwardedTo(typeof(MediatR.INotificationHandler<>))]
-[assembly: TypeForwardedTo(typeof(MediatR.IRequestHandler<>))]
-[assembly: TypeForwardedTo(typeof(MediatR.IRequestHandler<,>))]
+﻿// using System.Runtime.CompilerServices;
+// using Hikyaku;
+//
+//
+// [assembly: TypeForwardedTo(typeof(IBaseRequest))]
+// [assembly: TypeForwardedTo(typeof(IRequest<>))]
+// [assembly: TypeForwardedTo(typeof(IRequest))]
+// [assembly: TypeForwardedTo(typeof(INotification))]
+// [assembly: TypeForwardedTo(typeof(Unit))]
+// [assembly: TypeForwardedTo(typeof(IHikyaku))]
+// [assembly: TypeForwardedTo(typeof(IPipelineBehavior<,>))]
+// [assembly: TypeForwardedTo(typeof(INotificationHandler<>))]
+// [assembly: TypeForwardedTo(typeof(IRequestHandler<>))]
+// [assembly: TypeForwardedTo(typeof(IRequestHandler<,>))]

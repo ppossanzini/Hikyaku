@@ -8,7 +8,7 @@ namespace Hikyaku.Kaido
 {
   /// OrchestratorGateway class is a subclass of Orchestrator that adds additional functionality for remote request arbitration.
   /// /
-  public class Kaido : global::Hikyaku.Hikyaku, MediatR.IMediator
+  public class Kaido : global::Hikyaku.Hikyaku, IHikyaku
   {
     private readonly IRouter _router;
     private readonly ILogger<Kaido> _logger;
@@ -67,17 +67,17 @@ namespace Hikyaku.Kaido
       }
     }
 
-    Task<TResponse> MediatR.ISender.Send<TResponse>(MediatR.IRequest<TResponse> request, CancellationToken cancellationToken)
+    Task<TResponse> ISender.Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken)
     {
       return base.Send(request, cancellationToken);
     }
 
-    Task MediatR.ISender.Send<TRequest>(TRequest request, CancellationToken cancellationToken)
+    Task ISender.Send<TRequest>(TRequest request, CancellationToken cancellationToken)
     {
       return base.Send(request, cancellationToken);
     }
 
-    IAsyncEnumerable<TResponse> MediatR.ISender.CreateStream<TResponse>(MediatR.IStreamRequest<TResponse> request, CancellationToken cancellationToken)
+    IAsyncEnumerable<TResponse> ISender.CreateStream<TResponse>(IStreamRequest<TResponse> request, CancellationToken cancellationToken)
     {
       return base.CreateStream(request, cancellationToken);
     }

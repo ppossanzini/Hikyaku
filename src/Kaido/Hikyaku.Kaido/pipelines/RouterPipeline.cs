@@ -13,8 +13,8 @@ namespace Hikyaku.Kaido.Pipelines
   /// </summary>
   /// <typeparam name="TRequest">The type of the request.</typeparam>
   /// <typeparam name="TResponse">The type of the response.</typeparam>
-  public class RouterPipeline<TRequest, TResponse> : MediatR.IPipelineBehavior<TRequest, TResponse>
-    where TRequest : class, MediatR.IBaseRequest
+  public class RouterPipeline<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : class, IBaseRequest
   //where TRequest : notnull
   {
     private readonly IRouter _router;
@@ -29,7 +29,7 @@ namespace Hikyaku.Kaido.Pipelines
     }
 
 
-    private async Task<TResponse> InvokeHandler<T>(MediatR.RequestHandlerDelegate<TResponse> next, T req,
+    private async Task<TResponse> InvokeHandler<T>(RequestHandlerDelegate<TResponse> next, T req,
       CancellationToken cancellationToken)
     {
       var performanceMonitor = _provider.GetService<IPerformanceMonitor>();
@@ -64,7 +64,7 @@ namespace Hikyaku.Kaido.Pipelines
     }
 
 
-    public async Task<TResponse> Handle(TRequest request, MediatR.RequestHandlerDelegate<TResponse> next,
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
       CancellationToken cancellationToken)
     {
       if (typeof(IExplicitQueue).IsAssignableFrom(request.GetType()))
