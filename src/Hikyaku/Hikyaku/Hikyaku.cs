@@ -96,17 +96,7 @@ public class Hikyaku : IHikyaku
 
     return handler.Handle(request, _serviceProvider, cancellationToken);
   }
-
-  /// <summary>
-  /// Sends the specified request object to the appropriate handler for processing asynchronously.
-  /// </summary>
-  /// <param name="request">The request object to be processed. Must implement <see cref="IRequest"/> or <see cref="IRequest{TResponse}"/>.</param>
-  /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-  /// <returns>A task representing the asynchronous operation. The result of the task is the response from the handler or null if no response is expected.</returns>
-  public Task<object?> Send(object request, CancellationToken cancellationToken = default)
-  {
-    return SendObject(request, cancellationToken);
-  }
+  
 
   /// <summary>
   /// Sends the specified request object to the appropriate handler for processing asynchronously.
@@ -154,18 +144,7 @@ public class Hikyaku : IHikyaku
   }
 
 
-  /// <summary>
-  /// Publishes an object as a notification.
-  /// </summary>
-  /// <param name="notification">The object to be published. Must implement <see cref="INotification"/>.</param>
-  /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
-  /// <returns>A task that represents the asynchronous publish operation.</returns>
-  /// <exception cref="ArgumentNullException">Thrown when the <paramref name="notification"/> parameter is null.</exception>
-  /// <exception cref="ArgumentException">Thrown when the <paramref name="notification"/> does not implement <see cref="INotification"/>.</exception>
-  public Task Publish(object notification, CancellationToken cancellationToken = default)
-  {
-    return PublishObject(notification, cancellationToken);
-  }
+
 
   /// <summary>
   /// Publishes a notification to all registered handlers.
