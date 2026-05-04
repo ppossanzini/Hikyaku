@@ -297,10 +297,12 @@ namespace Hikyaku.Kaido.RabbitMQ
       }
       finally
       {
+        await _channel.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false);
+        
         if (!string.IsNullOrWhiteSpace(ea.BasicProperties.ReplyTo))
           await _channel.BasicPublishAsync(exchange: "", routingKey: ea.BasicProperties.ReplyTo, basicProperties: replyProps,
-            body: Encoding.UTF8.GetBytes(responseMsg ?? ""), mandatory: true);
-        await _channel.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false);
+            body: Encoding.UTF8.GetBytes(responseMsg ?? ""), mandatory: false); // cannot be mandatory.. if the replyTo queue is not present, we cannot do anything about it, and we don't want to lose the message in this case
+        
       }
     }
 

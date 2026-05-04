@@ -112,7 +112,7 @@ namespace Hikyaku.Kaido.RabbitMQ
       if (_options.EnableDeadLetterExchange)
       {
         await _sendChannel.ExchangeDeclareAsync($"{_options.ExchangeName}.dlx", ExchangeType.Fanout);
-        await _sendChannel.QueueDeclareAsync( queue: $"{_options.ExchangeName}.dlq", autoDelete: false);
+        await _sendChannel.QueueDeclareAsync( queue: $"{_options.ExchangeName}.dlq", autoDelete: false, exclusive:false, durable:true);
         await _sendChannel.QueueBindAsync( queue: $"{_options.ExchangeName}.dlq", exchange: $"{_options.ExchangeName}.dlx", routingKey: "");
 
       }

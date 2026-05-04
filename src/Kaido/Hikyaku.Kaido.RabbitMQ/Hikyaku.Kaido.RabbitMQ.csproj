@@ -28,6 +28,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9"/>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.2"/>
     <PackageReference Include="Hikyaku" Version="9.4.2" />
+    
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\assets\Logo-128.png">
