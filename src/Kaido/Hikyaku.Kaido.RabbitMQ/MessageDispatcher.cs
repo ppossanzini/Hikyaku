@@ -8,6 +8,7 @@ using System.Threading;
 using System.Text;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Hikyaku.Kaido.Messages;
 using Microsoft.Extensions.DependencyInjection;
@@ -107,7 +108,14 @@ namespace Hikyaku.Kaido.RabbitMQ
 
       _sendChannel = await _connection.CreateChannelAsync();
       await _sendChannel.ExchangeDeclareAsync(_options.ExchangeName, ExchangeType.Topic);
-      // _channel.ConfirmSelect();
+
+      if (_options.EnableDeadLetterExchange)
+      {
+        await _sendChannel.ExchangeDeclareAsync($"{_options.ExchangeName}.dlx", ExchangeType.Fanout);
+        await _sendChannel.QueueDeclareAsync( queue: $"{_options.ExchangeName}.dlq", autoDelete: false);
+        await _sendChannel.QueueBindAsync( queue: $"{_options.ExchangeName}.dlq", exchange: $"{_options.ExchangeName}.dlx", routingKey: "");
+
+      }
 
       var queueName = $"{_options.QueueName}.{Process.GetCurrentProcess().Id}.{DateTime.Now.Ticks}";
       _replyQueueName = (await _sendChannel.QueueDeclareAsync(queue: queueName)).QueueName;
@@ -215,7 +223,7 @@ namespace Hikyaku.Kaido.RabbitMQ
         mandatory: false,
         body: Encoding.UTF8.GetBytes(message)
       );
-      
+
       _logger.LogInformation($"Sending message to: {_options.ExchangeName}/{queueName ?? internalQueue} .. completed");
     }
 

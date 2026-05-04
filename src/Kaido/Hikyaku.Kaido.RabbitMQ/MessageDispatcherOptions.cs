@@ -56,6 +56,8 @@ namespace Hikyaku.Kaido.RabbitMQ
     /// Gets or sets a value indicating whether the object should be automatically deleted.
     /// </summary>
     public bool AutoDelete = false;
+    
+    public bool EnableDeadLetterExchange { get; set; } = true;
 
     public uint  MaxMessageSize { get; set; } = 100 * 1024 * 1024;
     
@@ -70,8 +72,8 @@ namespace Hikyaku.Kaido.RabbitMQ
     /// </remarks>
     public bool Durable = true;
 
-    public uint PerChannelQos { get; set; } = 0;
-    public ushort PerConsumerQos { get; set; } = 1;
+    public uint PerChannelQos { get; set; } = 100;
+    public ushort PerConsumerQos { get; set; } = 15;
 
     public string ClientName { get; set; }
 

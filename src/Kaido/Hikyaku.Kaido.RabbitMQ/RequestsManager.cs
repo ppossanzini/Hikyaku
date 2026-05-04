@@ -49,6 +49,8 @@ namespace Hikyaku.Kaido.RabbitMQ
     /// </summary>
     private IChannel _channel;
 
+    private Dictionary<Type, IChannel> _channels = new Dictionary<Type, IChannel>();
+
     private Dictionary<Type, AsyncEventingBasicConsumer> _consumers = new Dictionary<Type, AsyncEventingBasicConsumer>();
 
 
@@ -85,9 +87,12 @@ namespace Hikyaku.Kaido.RabbitMQ
 
       await CheckRequestsConsumers(cancellationToken);
 
-      await ValidateConnectionQos(cancellationToken);
+      foreach (var channel in _channels.Values)
+      {
+        await ValidateConnectionQos(channel, cancellationToken);
+      }
     }
-  
+
 
     private async Task CheckRequestsConsumers(CancellationToken cancellationToken)
     {
@@ -103,18 +108,26 @@ namespace Hikyaku.Kaido.RabbitMQ
         if (timeout != null)
         {
           arguments.Add("x-consumer-timeout", timeout);
+          //   arguments: new Dictionary<string, object>
+          // {
+          //   { "x-message-ttl", 60000 },
+          //   { "x-dead-letter-exchange", $"{_options.ExchangeName}.dlx" }
+          // });
         }
 
+
+        var channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
+        _channels.Add(t, channel);
 
         foreach (var queueName in queueNames)
         {
-          await _channel.QueueDeclareAsync(queue: queueName, durable: _options.Durable,
+          await channel.QueueDeclareAsync(queue: queueName, durable: _options.Durable,
             exclusive: isNotification && !isDurableNotification,
             autoDelete: _options.AutoDelete, arguments: arguments, cancellationToken: cancellationToken);
-          await _channel.QueueBindAsync(queueName, _options.ExchangeName, queueName.Split('$')[0], cancellationToken: cancellationToken);
+          await channel.QueueBindAsync(queueName, _options.ExchangeName, queueName.Split('$')[0], cancellationToken: cancellationToken);
         }
 
-        var consumer = new AsyncEventingBasicConsumer(_channel);
+        var consumer = new AsyncEventingBasicConsumer(channel);
         _consumers.Add(t, consumer);
 
         var consumerMethod = typeof(RequestsManager)
@@ -136,25 +149,24 @@ namespace Hikyaku.Kaido.RabbitMQ
         };
         foreach (var queueName in queueNames)
         {
-          await _channel.BasicConsumeAsync(queue: queueName, autoAck: isNotification, consumer: consumer, cancellationToken: cancellationToken);
+          await channel.BasicConsumeAsync(queue: queueName, autoAck: isNotification, consumer: consumer, cancellationToken: cancellationToken);
         }
       }
     }
 
-    private async Task ValidateConnectionQos(CancellationToken cancellationToken)
+    private async Task ValidateConnectionQos(IChannel channel, CancellationToken cancellationToken)
     {
       try
       {
         if (_options.PerChannelQos == 0)
         {
-          var qos = _router.GetLocalRequestsTypes().Count();
-          var maxMessages = qos * _options.PerConsumerQos > ushort.MaxValue ? ushort.MaxValue : (ushort)(qos * _options.PerConsumerQos);
+          var maxMessages =  Math.Min(_options.PerConsumerQos , ushort.MaxValue);
           _logger.LogInformation($"Configuring Qos for channels with: prefetch = 0 and fetch size = {maxMessages}");
-          await _channel.BasicQosAsync(0, maxMessages, true, cancellationToken: cancellationToken);
+          await channel.BasicQosAsync(0, maxMessages, true, cancellationToken: cancellationToken);
         }
         else
         {
-          await _channel.BasicQosAsync(0, _options.PerChannelQos > ushort.MaxValue ? ushort.MaxValue : (ushort)_options.PerChannelQos, true,
+          await channel.BasicQosAsync(0, _options.PerChannelQos > ushort.MaxValue ? ushort.MaxValue : (ushort)_options.PerChannelQos, true,
             cancellationToken: cancellationToken);
         }
       }
@@ -168,7 +180,7 @@ namespace Hikyaku.Kaido.RabbitMQ
       try
       {
         _logger.LogInformation($"Configuring Qos for consumers with: prefetch = 0 and fetch size = {Math.Max(_options.PerConsumerQos, (ushort)1)}");
-        await _channel.BasicQosAsync(0, Math.Max(_options.PerConsumerQos, (ushort)1), false, cancellationToken: cancellationToken);
+        await channel.BasicQosAsync(0, Math.Max(_options.PerConsumerQos, (ushort)1), false, cancellationToken: cancellationToken);
       }
       catch (Exception ex)
       {
@@ -205,7 +217,6 @@ namespace Hikyaku.Kaido.RabbitMQ
 
         _connection = await factory.CreateConnectionAsync(cancellationToken);
         _channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
-
         await _channel.ExchangeDeclareAsync(_options.ExchangeName, ExchangeType.Topic, cancellationToken: cancellationToken);
 
         _logger.LogInformation("Hikyaku: ready !");
@@ -298,27 +309,32 @@ namespace Hikyaku.Kaido.RabbitMQ
     /// </summary>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> used to cancel the operation.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public Task StopAsync(CancellationToken cancellationToken)
+    public async Task StopAsync(CancellationToken cancellationToken)
     {
       try
       {
-        _channel?.CloseAsync(cancellationToken);
+        foreach (var channel in _channels.Values.Where(c => c != null))
+        {
+          await channel.CloseAsync(cancellationToken);
+        }
+
+        if (_channel != null)
+          await _channel.CloseAsync(cancellationToken);
       }
-      catch
+      catch (Exception ex)
       {
-        // ignored
+        _logger.LogError(ex, "Error closing RabbitMQ channels");
       }
 
       try
       {
-        _connection?.CloseAsync(cancellationToken);
+        if (_connection != null)
+          await _connection.CloseAsync(cancellationToken);
       }
-      catch
+      catch (Exception ex)
       {
-        // ignored
+        _logger.LogError(ex, "Error closing RabbitMQ channels");
       }
-
-      return Task.CompletedTask;
     }
   }
 }
