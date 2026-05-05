@@ -155,38 +155,31 @@ namespace Hikyaku.Kaido.RabbitMQ
 
     private async Task ValidateConnectionQos(IChannel channel, CancellationToken cancellationToken)
     {
-      try
-      {
-        if (_options.PerChannelQos == 0)
-        {
-          var maxMessages =  Math.Min(_options.PerConsumerQos , ushort.MaxValue);
-          _logger.LogInformation($"Configuring Qos for channels with: prefetch = 0 and fetch size = {maxMessages}");
-          await channel.BasicQosAsync(0, maxMessages, true, cancellationToken: cancellationToken);
-        }
-        else
+      if (_options.PerChannelQos > 0)
+        try
         {
           await channel.BasicQosAsync(0, _options.PerChannelQos > ushort.MaxValue ? ushort.MaxValue : (ushort)_options.PerChannelQos, true,
             cancellationToken: cancellationToken);
         }
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError("Current RabbitMQ does not support Qos for channels");
-        _logger.LogError(ex.Message);
-        _logger.LogError(ex.StackTrace);
-      }
+        catch (Exception ex)
+        {
+          _logger.LogError("Current RabbitMQ does not support Qos for channels");
+          _logger.LogError(ex.Message);
+          _logger.LogError(ex.StackTrace);
+        }
 
-      try
-      {
-        _logger.LogInformation($"Configuring Qos for consumers with: prefetch = 0 and fetch size = {Math.Max(_options.PerConsumerQos, (ushort)1)}");
-        await channel.BasicQosAsync(0, Math.Max(_options.PerConsumerQos, (ushort)1), false, cancellationToken: cancellationToken);
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError("Current RabbitMQ does not support Qos for consumers");
-        _logger.LogError(ex.Message);
-        _logger.LogError(ex.StackTrace);
-      }
+      if (_options.PerConsumerQos > 0) 
+        try
+        {
+          _logger.LogInformation($"Configuring Qos for consumers with: prefetch = 0 and fetch size = {Math.Max(_options.PerConsumerQos, (ushort)1)}");
+          await channel.BasicQosAsync(0, Math.Max(_options.PerConsumerQos, (ushort)1), false, cancellationToken: cancellationToken);
+        }
+        catch (Exception ex)
+        {
+          _logger.LogError("Current RabbitMQ does not support Qos for consumers");
+          _logger.LogError(ex.Message);
+          _logger.LogError(ex.StackTrace);
+        }
     }
 
     private async Task CheckConnection(CancellationToken cancellationToken)
