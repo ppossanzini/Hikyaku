@@ -47,8 +47,7 @@ namespace Hikyaku.Kaido.RabbitMQ
     /// <summary>
     /// Represents the channel used for communication.
     /// </summary>
-    private IChannel _channel;
-
+    // private IChannel _channel;
     private Dictionary<Type, IChannel> _channels = new Dictionary<Type, IChannel>();
 
     private Dictionary<Type, AsyncEventingBasicConsumer> _consumers = new Dictionary<Type, AsyncEventingBasicConsumer>();
@@ -216,8 +215,8 @@ namespace Hikyaku.Kaido.RabbitMQ
         factory.TopologyRecoveryEnabled = true;
 
         _connection = await factory.CreateConnectionAsync(cancellationToken);
-        _channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
-        await _channel.ExchangeDeclareAsync(_options.ExchangeName, ExchangeType.Topic, cancellationToken: cancellationToken);
+        // _channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
+        // await _channel.ExchangeDeclareAsync(_options.ExchangeName, ExchangeType.Topic, cancellationToken: cancellationToken);
 
         _logger.LogInformation("Hikyaku: ready !");
       }
@@ -269,6 +268,10 @@ namespace Hikyaku.Kaido.RabbitMQ
     private async Task ConsumeChannelMessage<T>(object _, BasicDeliverEventArgs ea)
     {
       string responseMsg = null;
+      if (! _channels.TryGetValue(typeof(T), out var channel) || channel == null)
+        _logger.LogError($"Cannot find the channel for message of type {typeof(T)}. Message will be acknowledged but not processed");
+
+
       var replyProps = new BasicProperties();
       try
       {
@@ -297,12 +300,12 @@ namespace Hikyaku.Kaido.RabbitMQ
       }
       finally
       {
-        await _channel.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false);
-        
+        await channel.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false);
+
         if (!string.IsNullOrWhiteSpace(ea.BasicProperties.ReplyTo))
-          await _channel.BasicPublishAsync(exchange: "", routingKey: ea.BasicProperties.ReplyTo, basicProperties: replyProps,
-            body: Encoding.UTF8.GetBytes(responseMsg ?? ""), mandatory: false); // cannot be mandatory.. if the replyTo queue is not present, we cannot do anything about it, and we don't want to lose the message in this case
-        
+          await channel.BasicPublishAsync(exchange: "", routingKey: ea.BasicProperties.ReplyTo, basicProperties: replyProps,
+            body: Encoding.UTF8.GetBytes(responseMsg ?? ""),
+            mandatory: false); // cannot be mandatory.. if the replyTo queue is not present, we cannot do anything about it, and we don't want to lose the message in this case
       }
     }
 
@@ -320,8 +323,8 @@ namespace Hikyaku.Kaido.RabbitMQ
           await channel.CloseAsync(cancellationToken);
         }
 
-        if (_channel != null)
-          await _channel.CloseAsync(cancellationToken);
+        // if (_channel != null)
+        //   await _channel.CloseAsync(cancellationToken);
       }
       catch (Exception ex)
       {
