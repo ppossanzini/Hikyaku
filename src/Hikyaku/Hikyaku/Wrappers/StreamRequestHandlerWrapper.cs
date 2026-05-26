@@ -47,7 +47,7 @@ internal class StreamRequestHandlerWrapperImpl<TRequest, TResponse>
 
     var items =
       serviceProvider.GetServices<IStreamPipelineBehavior<TRequest, TResponse>>()
-        .Concat(serviceProvider.GetServices<IStreamPipelineBehavior<TRequest, TResponse>>())
+        
         .Reverse()
         .Aggregate(
           (StreamHandlerDelegate<TResponse>)Handler,
