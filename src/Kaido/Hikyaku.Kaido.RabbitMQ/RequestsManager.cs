@@ -85,11 +85,6 @@ namespace Hikyaku.Kaido.RabbitMQ
       await CheckConnection(cancellationToken);
 
       await CheckRequestsConsumers(cancellationToken);
-
-      foreach (var channel in _channels.Values)
-      {
-        await ValidateConnectionQos(channel, cancellationToken);
-      }
     }
 
 
@@ -117,6 +112,8 @@ namespace Hikyaku.Kaido.RabbitMQ
 
         var channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
         _channels.Add(t, channel);
+
+        await ValidateConnectionQos(channel, cancellationToken);
 
         foreach (var queueName in queueNames)
         {
