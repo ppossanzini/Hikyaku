@@ -17,9 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Kaido", "Kaido", "{6FB9519E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hikyaku.Kaido.Stats", "src\Kaido\Hikyaku.Kaido.Stats\Hikyaku.Kaido.Stats.csproj", "{72B61E38-5CE2-4627-8405-16DCDAF91236}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axon.Flow.MCP.Server", "src\MCP\Hikyaku.MCP.Server\Axon.Flow.MCP.Server.csproj", "{6750B742-BA1B-4FAF-9F09-37D39244837A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hikyaku.Kaido.MCP.Server", "src\MCP\Hikyaku.MCP.Server\Hikyaku.Kaido.MCP.Server.csproj", "{6750B742-BA1B-4FAF-9F09-37D39244837A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Axon.Flow.MCP", "src\MCP\Hikyaku.MCP\Axon.Flow.MCP.csproj", "{6452FD58-2A2C-40EA-9330-261877077348}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hikyaku.Kaido.MCP", "src\MCP\Hikyaku.MCP\Hikyaku.Kaido.MCP.csproj", "{6452FD58-2A2C-40EA-9330-261877077348}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hikyaku", "src\Hikyaku\Hikyaku\Hikyaku.csproj", "{18732C5D-2C5B-40AB-8BB3-65C4220649AE}"
 EndProject

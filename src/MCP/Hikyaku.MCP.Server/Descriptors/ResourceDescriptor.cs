@@ -1,4 +1,4 @@
-namespace Axon.Flow.MCP.Server.Descriptors;
+namespace Hikyaku.Kaido.MCP.Server.Descriptors;
 
 public class ResourceDescriptor
 {

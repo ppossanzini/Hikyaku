@@ -1,4 +1,4 @@
-namespace Axon.Flow.MCP.Server.MCP;
+namespace Hikyaku.Kaido.MCP.Server.MCP;
 
 public class InitializeResponse
 {

@@ -1,10 +1,10 @@
-using Axon.Flow.MCP.Server.dto;
-using Axon.Flow.MCP.Server.JsonRPC;
-using Axon.Flow.MCP.Server.MCP;
+using Hikyaku.Kaido.MCP.Server.dto;
+using Hikyaku.Kaido.MCP.Server.JsonRPC;
+using Hikyaku.Kaido.MCP.Server.MCP;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace Axon.Flow.MCP.Server.Controllers;
+namespace Hikyaku.Kaido.MCP.Server.Controllers;
 
 [ApiController]
 public class MCPController(IOptions<ServerInfo> serverInfo) : ControllerBase

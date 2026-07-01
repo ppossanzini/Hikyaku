@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace Axon.Flow.MCP;
+namespace Hikyaku.Kaido.MCP;
 
 public interface IRequestEnrich<in TRequest, TResponse>: IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {

@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
-using Axon.Flow.MCP.Server.dto;
+using Hikyaku.Kaido.MCP.Server.dto;
 
-namespace Axon.Flow.MCP.Server.JsonRPC;
+namespace Hikyaku.Kaido.MCP.Server.JsonRPC;
 
 public class Request
 {

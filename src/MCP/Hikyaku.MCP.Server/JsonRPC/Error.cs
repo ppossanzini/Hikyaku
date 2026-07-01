@@ -1,4 +1,4 @@
-namespace Axon.Flow.MCP.Server.dto;
+namespace Hikyaku.Kaido.MCP.Server.dto;
 
 public class Error(ErrorCode? code)
 {

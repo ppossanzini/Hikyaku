@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Axon.Flow.MCP.Server.dto;
+namespace Hikyaku.Kaido.MCP.Server.dto;
 
 public class ToolsListResult
 {

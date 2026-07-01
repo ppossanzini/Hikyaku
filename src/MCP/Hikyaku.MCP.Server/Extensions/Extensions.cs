@@ -1,4 +1,4 @@
-namespace Axon.Flow.MCP.Server.Extensions;
+namespace Hikyaku.Kaido.MCP.Server.Extensions;
 
 public class Extensions
 {

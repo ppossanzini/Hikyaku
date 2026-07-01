@@ -1,4 +1,4 @@
-namespace Axon.Flow.MCP;
+namespace Hikyaku.Kaido.MCP;
 
 public class AgentToolAttribute: System.Attribute
 {

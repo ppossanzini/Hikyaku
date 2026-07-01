@@ -1,4 +1,4 @@
-namespace Axon.Flow.MCP.Server;
+namespace Hikyaku.Kaido.MCP.Server;
 
 public class IContextManager
 {
