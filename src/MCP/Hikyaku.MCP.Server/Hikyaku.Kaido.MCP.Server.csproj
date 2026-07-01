@@ -10,4 +10,8 @@
     <PackageReference Include="Hikyaku" Version="[9.4.3,)" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0"/>
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Hikyaku.MCP/Hikyaku.Kaido.MCP.csproj" />
+  </ItemGroup>
 </Project>
