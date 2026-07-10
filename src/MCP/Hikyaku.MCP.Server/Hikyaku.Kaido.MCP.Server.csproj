@@ -1,17 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
     <RootNamespace>Hikyaku.Kaido.MCP.Server</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hikyaku" Version="[9.4.3,)" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0"/>
+    <FrameworkReference Include="Microsoft.AspNetCore.App"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Hikyaku.MCP/Hikyaku.Kaido.MCP.csproj" />
+    <ProjectReference Include="../Hikyaku.MCP/Hikyaku.Kaido.MCP.csproj"/>
   </ItemGroup>
+
 </Project>

@@ -1,17 +1,23 @@
-namespace Hikyaku.Kaido.MCP.Server.dto;
+using System.Text.Json.Serialization;
 
-public class Error(ErrorCode? code)
+namespace Hikyaku.Kaido.MCP.Server.JsonRPC;
+
+public class Error(ErrorCode code)
 {
-  public int Code { get; set; } = (int)code.Value;
-  public string Message { get; set; }
-  public object Data { get; set; }
+  [JsonPropertyName("code")] public int Code { get; set; } = (int)code;
+
+  [JsonPropertyName("message")] public string Message { get; set; } = string.Empty;
+
+  [JsonPropertyName("data")] public object? Data { get; set; }
 }
 
-public enum ErrorCode : int
+public enum ErrorCode
 {
   ParseError = -32700,
   InvalidRequest = -32600,
   MethodNotFound = -32601,
   InvalidParams = -32602,
-  InternalError = -32603
+  InternalError = -32603,
+  ResourceNotFound = -32002,
+  Unauthorized = -32001
 }

@@ -1,22 +1,87 @@
 using System.Reflection;
-using Microsoft.AspNetCore.Mvc;
+using Hikyaku.Kaido.MCP.Server.Security;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Hikyaku.Kaido.MCP.Server.Extensions;
 
 public static class Extensions
 {
-	public static IMvcBuilder AddHikyakuMcpServer(this IMvcBuilder builder, Action<ServerInfo>? configure = null)
-	{
-		builder.Services.AddOptions<ServerInfo>().Configure(info =>
-		{
-			info.Name ??= Assembly.GetEntryAssembly()?.GetName().Name ?? Assembly.GetExecutingAssembly().GetName().Name ?? "Hikyaku MCP Server";
-			info.Version ??= Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "1.0.0";
-			configure?.Invoke(info);
-		});
+  /// <summary>
+  /// Registers the Hikyaku MCP server services. Tools and resources are discovered from the
+  /// assemblies registered in the options (or from all loaded assemblies when none is specified).
+  /// </summary>
+  public static IServiceCollection AddHikyakuMcpServer(this IServiceCollection services, Action<McpServerOptions>? configure = null)
+  {
+    services.AddSingleton(_ =>
+    {
+      var options = new McpServerOptions();
+      var entryAssembly = Assembly.GetEntryAssembly();
+      options.ServerInfo.Name = entryAssembly?.GetName().Name ?? "Hikyaku MCP Server";
+      options.ServerInfo.Version = entryAssembly?.GetName().Version?.ToString() ?? "1.0.0";
+      configure?.Invoke(options);
+      return options;
+    });
 
-		return builder;
-	}
+    services.AddSingleton<McpRegistry>();
+    return services;
+  }
+
+  /// <summary>
+  /// Registers a guard that validates every MCP call before it is dispatched (e.g. token claims checks).
+  /// </summary>
+  public static IServiceCollection AddMcpCallGuard<TGuard>(this IServiceCollection services) where TGuard : class, IMcpCallGuard
+  {
+    services.AddScoped<IMcpCallGuard, TGuard>();
+    return services;
+  }
+
+  /// <summary>
+  /// Registers an <see cref="IRequestEnrich{TRequest}"/> implementation, invoked on the materialized
+  /// request before it is dispatched through Hikyaku (e.g. to copy token claims into the request).
+  /// </summary>
+  public static IServiceCollection AddMcpRequestEnricher<TEnricher>(this IServiceCollection services) where TEnricher : class
+  {
+    return services.AddMcpRequestEnricher(typeof(TEnricher));
+  }
+
+  /// <summary>
+  /// Registers an <see cref="IRequestEnrich{TRequest}"/> implementation. Accepts both closed types
+  /// (an enricher dedicated to one request) and open generic types (e.g. <c>typeof(AuditEnricher&lt;&gt;)</c>,
+  /// applied to every request type).
+  /// </summary>
+  public static IServiceCollection AddMcpRequestEnricher(this IServiceCollection services, Type enricherType)
+  {
+    var implementedEnrichInterfaces = enricherType.GetInterfaces()
+      .Where(candidate => candidate.IsGenericType && candidate.GetGenericTypeDefinition() == typeof(IRequestEnrich<>))
+      .ToArray();
+
+    if (implementedEnrichInterfaces.Length == 0)
+    {
+      throw new ArgumentException($"Type '{enricherType.FullName}' does not implement IRequestEnrich<TRequest>.", nameof(enricherType));
+    }
+
+    if (enricherType.IsGenericTypeDefinition)
+    {
+      services.AddScoped(typeof(IRequestEnrich<>), enricherType);
+      return services;
+    }
+
+    foreach (var enrichInterface in implementedEnrichInterfaces)
+    {
+      services.AddScoped(enrichInterface, enricherType);
+    }
+
+    return services;
+  }
+
+  /// <summary>
+  /// Maps the MCP JSON-RPC endpoint (streamable HTTP transport) on the given pattern.
+  /// Chain ASP.NET Core policies (e.g. .RequireAuthorization()) on the returned builder if needed.
+  /// </summary>
+  public static IEndpointConventionBuilder MapHikyakuMcpServer(this IEndpointRouteBuilder endpoints, string pattern = "/mcp")
+  {
+    return endpoints.MapPost(pattern, McpEndpoint.HandleAsync);
+  }
 }

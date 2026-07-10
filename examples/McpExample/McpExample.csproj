@@ -4,11 +4,10 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Hikyaku.Kaido.MCP</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../Hikyaku/Hikyaku/Hikyaku.csproj"/>
+    <ProjectReference Include="../../src/MCP/Hikyaku.MCP/Hikyaku.Kaido.MCP.csproj"/>
   </ItemGroup>
 
 </Project>

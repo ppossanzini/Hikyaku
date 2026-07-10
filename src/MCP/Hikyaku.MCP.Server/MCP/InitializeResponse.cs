@@ -1,21 +1,24 @@
+using System.Text.Json.Serialization;
+
 namespace Hikyaku.Kaido.MCP.Server.MCP;
 
 public class InitializeResponse
 {
-  public string ProtocolVersion { get; set; } = "2025-06-18";
-  public object Capabilities { get; set; } = new Capabilities();
-  public ServerInfo ServerInfo { get; set; }
+  [JsonPropertyName("protocolVersion")] public string ProtocolVersion { get; set; } = "2025-06-18";
 
-  public string protocolVersion => ProtocolVersion;
-  public object capabilities => Capabilities;
-  public ServerInfo serverInfo => ServerInfo;
+  [JsonPropertyName("capabilities")] public Capabilities Capabilities { get; set; } = new();
+
+  [JsonPropertyName("serverInfo")] public ServerInfo ServerInfo { get; set; } = new();
 }
 
 public class Capabilities
 {
-  public object Tools { get; set; } = new();
-  public object Resources { get; set; } = new();
+  [JsonPropertyName("tools")] public ListChangedCapability Tools { get; set; } = new();
 
-  public object tools => Tools;
-  public object resources => Resources;
+  [JsonPropertyName("resources")] public ListChangedCapability Resources { get; set; } = new();
+}
+
+public class ListChangedCapability
+{
+  [JsonPropertyName("listChanged")] public bool ListChanged { get; set; }
 }

@@ -2,11 +2,9 @@ namespace Hikyaku.Kaido.MCP.Server.Descriptors;
 
 public class ToolDescriptor
 {
-  public string Name { get; set; }
-  public string Title { get; set; }
-  public string Descriptor { get; set; }
-  public Type KaidoType { get; set; }
-  public string[] Required { get; set; }
-  public Type ReturnType { get; set; }
-  public PropertyDescriptor[] Properties { get; set; }
+  public required string Name { get; init; }
+  public string? Title { get; init; }
+  public string? Description { get; init; }
+  public required Type RequestType { get; init; }
+  public required object InputSchema { get; init; }
 }

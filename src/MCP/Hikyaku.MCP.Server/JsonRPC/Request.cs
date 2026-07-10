@@ -1,5 +1,5 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
-using Hikyaku.Kaido.MCP.Server.dto;
 
 namespace Hikyaku.Kaido.MCP.Server.JsonRPC;
 
@@ -9,17 +9,20 @@ public class Request
 
   [JsonPropertyName("method")] public string Method { get; set; } = string.Empty;
 
-  [JsonPropertyName("id")] public object Id { get; set; }
+  [JsonPropertyName("id")] public JsonElement? Id { get; set; }
 
-  [JsonPropertyName("params")] public object Params { get; set; }
+  [JsonPropertyName("params")] public JsonElement? Params { get; set; }
 
-  public Response SuccessfulResponse(Object result)
+  [JsonIgnore]
+  public bool IsNotification => Id is null || Id.Value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined;
+
+  public Response SuccessfulResponse(object result)
   {
-    return new Response(result, Id);
+    return new Response { Id = Id, Result = result };
   }
 
-  public Response ErrorResponse(ErrorCode code, string message, Object errordata = null)
+  public Response ErrorResponse(ErrorCode code, string message, object? errorData = null)
   {
-    return Response.Error(code, message, errordata);
+    return new Response { Id = Id, ErrorDetail = new Error(code) { Message = message, Data = errorData } };
   }
 }
