@@ -1,5 +1,6 @@
 using Hikyaku.Kaido.MCP;
 using McpExample;
+using McpExample.Requests;
 
 namespace McpExample.Server;
 
@@ -9,7 +10,8 @@ namespace McpExample.Server;
 /// and data passed to the handler can be enriched with information from the HTTP request (claims, headers, etc.) without coupling the handler to ASP.NET Core.
 /// Being a scoped DI service, it injects IHttpContextAccessor to reach the current call.
 /// </summary>
-public class ClientNameEnricher(IHttpContextAccessor httpContextAccessor) : IRequestEnrich<ServerMetadataResource>
+public class ClientNameEnricher(IHttpContextAccessor httpContextAccessor) : 
+  IRequestEnrich<ServerMetadataResource>
 {
   public Task Enrich(ServerMetadataResource request, CancellationToken cancellationToken)
   {

@@ -1,8 +1,10 @@
 using System.Security.Cryptography;
 using System.Text;
 using Hikyaku;
+using Hikyaku.Kaido.MCP;
 using Hikyaku.Kaido.MCP.Server.Extensions;
 using McpExample;
+using McpExample.Requests;
 using McpExample.Server;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,13 +28,16 @@ builder.Services.AddHikyakuMcpServer(mcp =>
   var expectedKey = Encoding.UTF8.GetBytes(builder.Configuration["Mcp:ApiKey"] ?? "dev-secret-token");
   mcp.Security.WithApiKey(apiKey =>
     CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(apiKey), expectedKey));
+
+  // mcp.Security.RequireAuthenticatedUser();
 });
 
 // Enriches incoming requests with data from the HTTP call (claims, headers).
 // Typed per request via IRequestEnrich<T>; open generics are supported too:
-// builder.Services.AddMcpRequestEnricher(typeof(AuditEnricher<>));
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMcpRequestEnricher<ClientNameEnricher>();
+//builder.Services.AddMcpRequestEnricher(typeof(IRequestEnrich<>), typeof(ClientNameEnricher).Assembly);
 
 var app = builder.Build();
 

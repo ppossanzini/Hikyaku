@@ -47,12 +47,32 @@ public static class Extensions
   }
 
   /// <summary>
-  /// Registers an <see cref="IRequestEnrich{TRequest}"/> implementation. Accepts both closed types
-  /// (an enricher dedicated to one request) and open generic types (e.g. <c>typeof(AuditEnricher&lt;&gt;)</c>,
-  /// applied to every request type).
+  /// Registers an <see cref="IRequestEnrich{TRequest}"/> implementation. Accepts:
+  /// <list type="bullet">
+  ///   <item>A closed concrete type (e.g. <c>typeof(ClientNameEnricher)</c>) — registered for the specific request type it targets.</item>
+  ///   <item>An open generic type (e.g. <c>typeof(AuditEnricher&lt;&gt;)</c>) — applied to every request type.</item>
+  ///   <item>The open generic interface itself (<c>typeof(IRequestEnrich&lt;&gt;)</c>) — scans <paramref name="assemblies"/> (or all loaded assemblies when none are specified) and registers every concrete implementation found.</item>
+  /// </list>
   /// </summary>
-  public static IServiceCollection AddMcpRequestEnricher(this IServiceCollection services, Type enricherType)
+  public static IServiceCollection AddMcpRequestEnricher(this IServiceCollection services, Type enricherType, params Assembly[] assemblies)
   {
+    if (enricherType.IsGenericTypeDefinition && enricherType == typeof(IRequestEnrich<>))
+    {
+      var searchAssemblies = assemblies.Length > 0
+        ? assemblies
+        : AppDomain.CurrentDomain.GetAssemblies();
+
+      var implementations = searchAssemblies
+        .SelectMany(a => { try { return a.GetTypes(); } catch (ReflectionTypeLoadException ex) { return ex.Types.Where(t => t is not null).Cast<Type>(); } })
+        .Where(t => t is { IsAbstract: false, IsInterface: false })
+        .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequestEnrich<>)));
+
+      foreach (var impl in implementations)
+        services.AddMcpRequestEnricher(impl);
+
+      return services;
+    }
+
     var implementedEnrichInterfaces = enricherType.GetInterfaces()
       .Where(candidate => candidate.IsGenericType && candidate.GetGenericTypeDefinition() == typeof(IRequestEnrich<>))
       .ToArray();
