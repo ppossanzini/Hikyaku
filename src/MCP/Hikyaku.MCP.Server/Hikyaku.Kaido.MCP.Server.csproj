@@ -29,8 +29,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hikyaku" Version="[9.5.1,]" />
-    <PackageReference Include="Hikyaku.Kaido.MCP" Version="[9.5.1,]" />
+    <PackageReference Include="Hikyaku" Version="[9.5.1,]"/>
+    <PackageReference Include="Hikyaku.Kaido.MCP" Version="[9.5.1,]"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\assets\Logo-128.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+      <Link>Logo-128.png</Link>
+    </None>
+    <None Include="..\..\..\Hikyaku.snk">
+      <Link>Hikyaku.snk</Link>
+    </None>
   </ItemGroup>
 
 </Project>

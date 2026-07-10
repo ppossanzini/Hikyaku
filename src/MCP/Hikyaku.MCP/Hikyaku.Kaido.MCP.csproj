@@ -20,12 +20,23 @@
     <PackageIcon>Logo-128.png</PackageIcon>
     <RepositoryUrl>https://github.com/ppossanzini/Hikyaku</RepositoryUrl>
     <PackageId>Hikyaku.Kaido.MCP</PackageId>
-    <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\Hikyaku.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hikyaku.Contracts" Version="[9.1.2,]" />
+    <PackageReference Include="Hikyaku.Contracts" Version="[9.1.2,]"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\assets\Logo-128.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+      <Link>Logo-128.png</Link>
+    </None>
+
+    <None Include="..\..\..\Hikyaku.snk">
+      <Link>Hikyaku.snk</Link>
+    </None>
   </ItemGroup>
 
 </Project>
