@@ -1,13 +1,13 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Hikyaku.Kaido.MCP.Server.Descriptors;
-using Hikyaku.Kaido.MCP.Server.JsonRPC;
-using Hikyaku.Kaido.MCP.Server.MCP;
-using Hikyaku.Kaido.MCP.Server.Security;
+using Hikyaku.MCP.Server.Descriptors;
+using Hikyaku.MCP.Server.JsonRPC;
+using Hikyaku.MCP.Server.MCP;
+using Hikyaku.MCP.Server.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Hikyaku.Kaido.MCP.Server;
+namespace Hikyaku.MCP.Server;
 
 /// <summary>
 /// Handles MCP JSON-RPC requests over the streamable HTTP transport (single POST endpoint).

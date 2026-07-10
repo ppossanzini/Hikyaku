@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Hikyaku.Kaido.MCP
+namespace Hikyaku.MCP
 {
   /// <summary>
   /// Marks an <see cref="IRequest"/> / <see cref="IRequest{TResponse}"/> class as an MCP resource.

@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
-namespace Hikyaku.Kaido.MCP.Server.Security;
+namespace Hikyaku.MCP.Server.Security;
 
 /// <summary>
 /// Context of an incoming MCP call, made available to guards and enrichers.

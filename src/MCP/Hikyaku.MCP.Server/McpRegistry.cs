@@ -1,8 +1,9 @@
 using System.Reflection;
 using System.Text;
-using Hikyaku.Kaido.MCP.Server.Descriptors;
+using Hikyaku.MCP.Server.Descriptors;
+using Hikyaku.MCP;
 
-namespace Hikyaku.Kaido.MCP.Server;
+namespace Hikyaku.MCP.Server;
 
 /// <summary>
 /// Discovers [AgentTool] / [AgentResource] request types once at startup and indexes them for MCP dispatching.

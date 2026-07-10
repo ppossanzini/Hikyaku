@@ -1,9 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <RootNamespace>Hikyaku.Kaido.MCP.Server</RootNamespace>
-    <ImplicitUsings>true</ImplicitUsings>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <Authors>Paolo Possanzini</Authors>
     <Description>MCP extensions for Hikyaku</Description>
     <Copyright>Copyright Paolo Possanzini</Copyright>
@@ -17,20 +15,15 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <Deterministic>true</Deterministic>
+    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
     <PackageIcon>Logo-128.png</PackageIcon>
     <RepositoryUrl>https://github.com/ppossanzini/Hikyaku</RepositoryUrl>
-    <PackageId>Hikyaku.Kaido.MCP.Server</PackageId>
-    <SignAssembly>true</SignAssembly>
+    <PackageId>Hikyaku.MCP</PackageId>
     <AssemblyOriginatorKeyFile>..\..\..\Hikyaku.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App"/>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Hikyaku" Version="[9.5.1,]"/>
-    <PackageReference Include="Hikyaku.Kaido.MCP" Version="[9.5.1,]"/>
+    <PackageReference Include="Hikyaku.Contracts" Version="[9.1.2,]"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -39,6 +32,7 @@
       <PackagePath></PackagePath>
       <Link>Logo-128.png</Link>
     </None>
+
     <None Include="..\..\..\Hikyaku.snk">
       <Link>Hikyaku.snk</Link>
     </None>

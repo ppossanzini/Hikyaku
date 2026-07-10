@@ -1,6 +1,6 @@
 using System;
 
-namespace Hikyaku.Kaido.MCP
+namespace Hikyaku.MCP
 {
 
   /// <summary>

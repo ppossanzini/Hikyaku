@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Hikyaku.Kaido.MCP.Server;
+namespace Hikyaku.MCP.Server;
 
 public class ServerInfo
 {

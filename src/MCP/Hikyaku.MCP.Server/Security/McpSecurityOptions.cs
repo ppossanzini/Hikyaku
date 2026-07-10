@@ -1,4 +1,4 @@
-namespace Hikyaku.Kaido.MCP.Server.Security;
+namespace Hikyaku.MCP.Server.Security;
 
 /// <summary>
 /// Validates the API key presented by the caller ("Authorization: Bearer &lt;key&gt;" or "X-Api-Key" header).

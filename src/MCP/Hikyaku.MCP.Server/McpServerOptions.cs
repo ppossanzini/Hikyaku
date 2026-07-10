@@ -1,7 +1,7 @@
 using System.Reflection;
-using Hikyaku.Kaido.MCP.Server.Security;
+using Hikyaku.MCP.Server.Security;
 
-namespace Hikyaku.Kaido.MCP.Server;
+namespace Hikyaku.MCP.Server;
 
 public class McpServerOptions
 {

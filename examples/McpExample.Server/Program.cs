@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Hikyaku;
 using Hikyaku.Kaido.MCP;
-using Hikyaku.Kaido.MCP.Server.Extensions;
+using Hikyaku.MCP.Server.Extensions;
 using McpExample;
 using McpExample.Requests;
 using McpExample.Server;

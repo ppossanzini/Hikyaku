@@ -1,10 +1,11 @@
 using System.Reflection;
-using Hikyaku.Kaido.MCP.Server.Security;
+using Hikyaku.MCP.Server.Security;
+using Hikyaku.MCP;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Hikyaku.Kaido.MCP.Server.Extensions;
+namespace Hikyaku.MCP.Server.Extensions;
 
 public static class Extensions
 {

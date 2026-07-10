@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
-namespace Hikyaku.Kaido.MCP.Server;
+namespace Hikyaku.MCP.Server;
 
 /// <summary>
 /// Builds a JSON Schema describing the public settable properties of a request type,

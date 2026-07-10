@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Hikyaku.Kaido.MCP.Server.JsonRPC;
+namespace Hikyaku.MCP.Server.JsonRPC;
 
 public class Error(ErrorCode code)
 {

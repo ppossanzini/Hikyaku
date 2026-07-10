@@ -1,9 +1,10 @@
 using System.Collections.Concurrent;
 using System.Reflection;
+using Hikyaku.MCP;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Hikyaku.Kaido.MCP.Server.Security;
+namespace Hikyaku.MCP.Server.Security;
 
 /// <summary>
 /// Evaluates built-in checks (API key, authenticated user) and the custom <see cref="IMcpCallGuard"/> chain.

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Hikyaku.Kaido.MCP.Server.MCP;
+namespace Hikyaku.MCP.Server.MCP;
 
 public class ToolCallResult
 {

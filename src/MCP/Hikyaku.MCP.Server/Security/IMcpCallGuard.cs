@@ -1,4 +1,4 @@
-namespace Hikyaku.Kaido.MCP.Server.Security;
+namespace Hikyaku.MCP.Server.Security;
 
 /// <summary>
 /// Validates an incoming MCP call before it is dispatched. Register implementations in DI

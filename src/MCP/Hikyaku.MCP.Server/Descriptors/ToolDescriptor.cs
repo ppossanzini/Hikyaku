@@ -1,4 +1,4 @@
-namespace Hikyaku.Kaido.MCP.Server.Descriptors;
+namespace Hikyaku.MCP.Server.Descriptors;
 
 public class ToolDescriptor
 {
