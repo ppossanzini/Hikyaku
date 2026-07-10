@@ -8,7 +8,7 @@ public class Error(ErrorCode code)
 
   [JsonPropertyName("message")] public string Message { get; set; } = string.Empty;
 
-  [JsonPropertyName("data")] public object? Data { get; set; }
+  [JsonPropertyName("data")] public object Data { get; set; }
 }
 
 public enum ErrorCode

@@ -20,14 +20,14 @@
     <PackageId>Hikyaku.Kaido.RabbitMQ</PackageId>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\Hikyaku.snk</AssemblyOriginatorKeyFile>
-    <AssemblyVersion>10.0.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="RabbitMQ.Client" Version="7.0.0"/>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9"/>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.2"/>
-    <PackageReference Include="Hikyaku" Version="9.4.3" />
+    <PackageReference Include="Hikyaku" Version="[9.4.3,]" />
+    <PackageReference Include="Hikyaku.Kaido" Version="[9.4.3,]" />
     
   </ItemGroup>
   <ItemGroup>
@@ -36,8 +36,5 @@
       <PackagePath></PackagePath>
       <Link>Logo-128.png</Link>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Hikyaku.Kaido\Hikyaku.Kaido.csproj" />
   </ItemGroup>
 </Project>

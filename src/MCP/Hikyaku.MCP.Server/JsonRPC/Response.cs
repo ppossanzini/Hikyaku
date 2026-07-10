@@ -11,16 +11,16 @@ public class Response
   [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
   public JsonElement? Id { get; init; }
 
-  [JsonPropertyName("result")] public object? Result { get; init; }
+  [JsonPropertyName("result")] public object Result { get; init; }
 
-  [JsonPropertyName("error")] public Error? ErrorDetail { get; init; }
+  [JsonPropertyName("error")] public Error ErrorDetail { get; init; }
 
-  public static Response ParseError(string message, object? data = null)
+  public static Response ParseError(string message, object data = null)
   {
     return new Response { ErrorDetail = new Error(ErrorCode.ParseError) { Message = message, Data = data } };
   }
 
-  public static Response InvalidRequest(string message, object? data = null)
+  public static Response InvalidRequest(string message, object data = null)
   {
     return new Response { ErrorDetail = new Error(ErrorCode.InvalidRequest) { Message = message, Data = data } };
   }

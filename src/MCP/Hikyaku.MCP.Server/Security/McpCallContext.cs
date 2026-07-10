@@ -21,7 +21,7 @@ public class McpCallContext
   /// <summary>
   /// The tool name or resource uri targeted by the call, when present in the params.
   /// </summary>
-  public string? ComponentName { get; init; }
+  public string ComponentName { get; init; }
 
   /// <summary>
   /// The authenticated principal, populated by the ASP.NET Core authentication middleware when configured.

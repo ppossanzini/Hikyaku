@@ -12,7 +12,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>   
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <Deterministic>true</Deterministic>
     <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
@@ -21,14 +21,10 @@
     <PackageId>Hikyaku.Kaido.Stats</PackageId>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\Hikyaku.snk</AssemblyOriginatorKeyFile>
-    <AssemblyVersion>10.0.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
-    <PackageReference Include="AxonFlow.Flow" Version="9.5.0"/>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Hikyaku.Kaido\Hikyaku.Kaido.csproj" />
+    <PackageReference Include="Hikyaku.Kaido" Version="[9.4.3,]" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\assets\Logo-128.png">

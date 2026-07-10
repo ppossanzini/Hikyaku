@@ -1,10 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Hikyaku.Kaido.MCP.Server</RootNamespace>
+    <ImplicitUsings>true</ImplicitUsings>
+    <Authors>Paolo Possanzini</Authors>
+    <Description>MCP extensions for Hikyaku</Description>
+    <Copyright>Copyright Paolo Possanzini</Copyright>
+    <Features>strict</Features>
+    <PackageTags>mediator;request;response;queries;commands;notifications;rpc;rabbitmq</PackageTags>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Deterministic>true</Deterministic>
+    <PackageIcon>Logo-128.png</PackageIcon>
+    <RepositoryUrl>https://github.com/ppossanzini/Hikyaku</RepositoryUrl>
+    <PackageId>Hikyaku.Kaido.MCP.Server</PackageId>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\Hikyaku.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Hikyaku.MCP/Hikyaku.Kaido.MCP.csproj"/>
+    <PackageReference Include="Hikyaku" Version="[9.5.1,]" />
+    <PackageReference Include="Hikyaku.Kaido.MCP" Version="[9.5.1,]" />
   </ItemGroup>
 
 </Project>

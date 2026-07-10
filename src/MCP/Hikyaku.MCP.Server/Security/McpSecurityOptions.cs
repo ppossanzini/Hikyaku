@@ -13,7 +13,7 @@ public delegate Task<bool> McpApiKeyValidator(string apiKey, McpCallContext cont
 /// </summary>
 public class McpSecurityOptions
 {
-  internal McpApiKeyValidator? ApiKeyValidator { get; private set; }
+  internal McpApiKeyValidator ApiKeyValidator { get; private set; }
 
   internal bool AuthenticatedUserRequired { get; private set; }
 

@@ -7,8 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Hikyaku" Version="[9.5.1,]"/>
+    <PackageReference Include="Hikyaku.Kaido.MCP" Version="[9.5.1,]"/>
+    <PackageReference Include="Hikyaku.Kaido.MCP.Server" Version="[9.5.1,]"/>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="../McpExample/McpExample.csproj"/>
-    <ProjectReference Include="../../src/MCP/Hikyaku.MCP.Server/Hikyaku.Kaido.MCP.Server.csproj"/>
   </ItemGroup>
 
 </Project>

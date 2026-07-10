@@ -42,9 +42,9 @@ public class ToolListItem
 {
   [JsonPropertyName("name")] public string Name { get; set; } = string.Empty;
 
-  [JsonPropertyName("title")] public string? Title { get; set; }
+  [JsonPropertyName("title")] public string Title { get; set; }
 
-  [JsonPropertyName("description")] public string? Description { get; set; }
+  [JsonPropertyName("description")] public string Description { get; set; }
 
   [JsonPropertyName("inputSchema")] public object InputSchema { get; set; } = new();
 }
@@ -60,9 +60,9 @@ public class ResourceListItem
 
   [JsonPropertyName("name")] public string Name { get; set; } = string.Empty;
 
-  [JsonPropertyName("title")] public string? Title { get; set; }
+  [JsonPropertyName("title")] public string Title { get; set; }
 
-  [JsonPropertyName("description")] public string? Description { get; set; }
+  [JsonPropertyName("description")] public string Description { get; set; }
 
-  [JsonPropertyName("mimeType")] public string? MimeType { get; set; }
+  [JsonPropertyName("mimeType")] public string MimeType { get; set; }
 }

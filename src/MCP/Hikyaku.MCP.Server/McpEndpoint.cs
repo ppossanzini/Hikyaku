@@ -21,7 +21,7 @@ internal static class McpEndpoint
 
   internal static async Task HandleAsync(HttpContext context)
   {
-    Request? request = null;
+    Request request = null;
     try
     {
       request = await JsonSerializer.DeserializeAsync<Request>(context.Request.Body, SerializerOptions, context.RequestAborted);
