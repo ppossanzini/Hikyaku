@@ -18,7 +18,7 @@
     <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
     <PackageIcon>Logo-128.png</PackageIcon>
     <RepositoryUrl>https://github.com/ppossanzini/Hikyaku</RepositoryUrl>
-    <PackageId>Hikyaku.MCP</PackageId>
+    <PackageId>Hikyaku.MCP.Contracts</PackageId>
     <AssemblyOriginatorKeyFile>..\..\..\Hikyaku.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 

@@ -30,7 +30,6 @@
 
   <ItemGroup>
     <PackageReference Include="Hikyaku" Version="[9.5.1,]"/>
-<!--    <PackageReference Include="Hikyaku.MCP" Version="[9.5.1,]"/>-->
   </ItemGroup>
 
   <ItemGroup>
@@ -45,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Hikyaku.MCP\Hikyaku.MCP.csproj" />
+    <ProjectReference Include="..\Hikyaku.MCP.Contracts\Hikyaku.MCP.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

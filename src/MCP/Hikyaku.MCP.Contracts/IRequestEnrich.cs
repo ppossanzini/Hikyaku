@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Hikyaku.MCP
+namespace Hikyaku.MCP.Contracts
 {
   /// <summary>
   /// Enriches an MCP-originated request before it is dispatched through Hikyaku.

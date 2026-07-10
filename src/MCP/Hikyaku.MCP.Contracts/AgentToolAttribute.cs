@@ -1,6 +1,6 @@
 using System;
 
-namespace Hikyaku.MCP
+namespace Hikyaku.MCP.Contracts
 {
 
   /// <summary>

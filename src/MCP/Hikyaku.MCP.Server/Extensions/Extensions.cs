@@ -1,6 +1,6 @@
 using System.Reflection;
 using Hikyaku.MCP.Server.Security;
-using Hikyaku.MCP;
+using Hikyaku.MCP.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;

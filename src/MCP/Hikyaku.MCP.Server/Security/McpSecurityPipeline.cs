@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 using System.Reflection;
-using Hikyaku.MCP;
+using Hikyaku.MCP.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 

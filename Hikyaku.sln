@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hikyaku.Kaido.Stats", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hikyaku.MCP.Server", "src\MCP\Hikyaku.MCP.Server\Hikyaku.MCP.Server.csproj", "{6750B742-BA1B-4FAF-9F09-37D39244837A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hikyaku.MCP", "src\MCP\Hikyaku.MCP\Hikyaku.MCP.csproj", "{6452FD58-2A2C-40EA-9330-261877077348}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hikyaku.MCP.Contracts", "src\MCP\Hikyaku.MCP.Contracts\Hikyaku.MCP.Contracts.csproj", "{6452FD58-2A2C-40EA-9330-261877077348}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hikyaku", "src\Hikyaku\Hikyaku\Hikyaku.csproj", "{18732C5D-2C5B-40AB-8BB3-65C4220649AE}"
 EndProject

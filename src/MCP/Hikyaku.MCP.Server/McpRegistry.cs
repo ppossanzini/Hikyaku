@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Text;
 using Hikyaku.MCP.Server.Descriptors;
-using Hikyaku.MCP;
+using Hikyaku.MCP.Contracts;
 
 namespace Hikyaku.MCP.Server;
 
