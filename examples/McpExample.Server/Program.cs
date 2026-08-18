@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
 using Hikyaku;
-using Hikyaku.Kaido.MCP;
 using Hikyaku.MCP.Server.Extensions;
 using McpExample;
 using McpExample.Requests;
@@ -18,9 +17,9 @@ builder.Services.AddHikyakuMcpServer(mcp =>
   mcp.ServerInfo.Title = "Hikyaku MCP example server";
 
   // Exposure modes (pick one or combine):
-  // mcp.RegisterAllComponents();                                  // 1) everything loaded in the AppDomain
-  mcp.RegisterComponentsFromAssemblies(typeof(GetServerTimeTool).Assembly); // 2) specific assemblies
-  // mcp.RegisterComponents(typeof(GetServerTimeTool), typeof(SumNumbersTool)); // 3) explicit types only
+  // mcp.RegisterAllComponents();                                                 // 1) everything loaded in the AppDomain
+  mcp.RegisterComponentsFromAssemblies(typeof(GetServerTimeTool).Assembly);       // 2) specific assemblies
+  // mcp.RegisterComponents(typeof(GetServerTimeTool), typeof(SumNumbersTool));   // 3) explicit types only
 
   // Callers must present a token as "Authorization: Bearer <key>" or "X-Api-Key" header.
   // The callout owns the validation: constant-time comparison here, but it could be a

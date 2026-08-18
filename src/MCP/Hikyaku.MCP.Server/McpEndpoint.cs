@@ -16,7 +16,8 @@ internal static class McpEndpoint
 {
   internal static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
   {
-    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    Converters = { new JsonStringEnumConverter() }
   };
 
   internal static async Task HandleAsync(HttpContext context)
