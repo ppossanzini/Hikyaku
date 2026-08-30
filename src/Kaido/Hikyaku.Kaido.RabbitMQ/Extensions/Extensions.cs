@@ -105,7 +105,7 @@ namespace Microsoft.Extensions.DependencyInjection
       Func<IEnumerable<Type>> typesSelect)
     {
       foreach (var type in typesSelect().Where(t => typeof(IBaseRequest).IsAssignableFrom(t)))
-        options.DispatchOnly.Add(type);
+        options.DontDispatch.Add(type);
 
       return options;
     }
